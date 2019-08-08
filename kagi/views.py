@@ -1,8 +1,8 @@
 import os
 from base64 import b32encode, b32decode
 from collections import OrderedDict
-from six import BytesIO
-from six.moves.urllib.parse import quote
+from io import BytesIO
+from urllib.parse import quote
 
 from django.views.generic import FormView, ListView, TemplateView
 from django.contrib.auth.forms import AuthenticationForm

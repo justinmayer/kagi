@@ -81,12 +81,9 @@ class TOTPDevice(models.Model):
         if self.last_t is not None:
             times_to_check = [t for t in times_to_check if T(t) > self.last_t]
 
-        # not sure why django gives you a memory view instead of a bytes object
-        key = six.binary_type(self.key)
-
         token = str(token)
         for t in times_to_check:
-            if hmac.compare_digest(totp(key, t), token):
+            if hmac.compare_digest(totp(self.key, t), token):
                 self.last_t = T(t)
                 return True
         return False
