@@ -12,11 +12,11 @@ def read(fname, encoding='utf-8'):
 
 
 setup(
-    name='django-u2f',
-    version='0.3.1.dev0',
+    name='kagi',
+    version='0.1.0.dev0',
     description="FIDO U2F security token support for Django",
     long_description=read('README.rst'),
-    url='https://github.com/gavinwahl/django-u2f',
+    url='https://github.com/justinmayer/kagi',
 
     packages=find_packages(exclude=['testproj']),
     include_package_data=True,
@@ -24,11 +24,10 @@ setup(
     install_requires=[
         'python-u2flib-server>=5.0.0',
         'django-argonauts',
-        'django>=1.11',
+        'django',
         'qrcode',
-        'six',
     ],
-    author='Gavin Wahl',
+    author='Justin Mayer',
     author_email='gavinwahl@gmail.com',
     license='BSD',
     classifiers=[
@@ -36,9 +35,8 @@ setup(
         'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Security',
         'Topic :: Security :: Cryptography',
     ],
