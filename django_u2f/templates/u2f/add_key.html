@@ -1,0 +1,20 @@
+{% extends "u2f/base.html" %}
+{% load argonauts %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{{ block.super }}
+<p>{% trans 'To add a security key to your account, insert (and tap) it.' %}</p>
+
+<p id="u2f-status"></p>
+<form method="post" id="u2f-form">
+    {% csrf_token %}
+    {{ form.response }}
+</form>
+
+<script type="application/json" id="django_u2f_registration">
+  {{ registration_request|json }}
+</script>
+<script src="{% static 'django_u2f/django_u2f.js' %}"></script>
+{% endblock %}
