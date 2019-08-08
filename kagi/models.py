@@ -1,9 +1,6 @@
-from __future__ import division
-
 import datetime
 import string
 import hmac
-import six
 
 from django.db import models
 from django.conf import settings

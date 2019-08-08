@@ -29,7 +29,7 @@ from .models import TOTPDevice
 
 class U2FLoginView(LoginView):
     form_class = AuthenticationForm
-    template_name = 'u2f/login.html'
+    template_name = 'kagi/login.html'
 
     @property
     def is_admin(self):
@@ -82,7 +82,7 @@ class OriginMixin(object):
 
 
 class AddKeyView(OriginMixin, FormView):
-    template_name = 'u2f/add_key.html'
+    template_name = 'kagi/add_key.html'
     form_class = KeyRegistrationForm
     success_url = reverse_lazy('u2f:u2f-keys')
 
@@ -129,7 +129,7 @@ class AddKeyView(OriginMixin, FormView):
 
 
 class VerifySecondFactorView(OriginMixin, TemplateView):
-    template_name = 'u2f/verify_second_factor.html'
+    template_name = 'kagi/verify_second_factor.html'
 
     @property
     def form_classes(self):
@@ -224,7 +224,7 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
 
 
 class TwoFactorSettingsView(TemplateView):
-    template_name = 'u2f/two_factor_settings.html'
+    template_name = 'kagi/two_factor_settings.html'
 
     def get_context_data(self, **kwargs):
         context= super(TwoFactorSettingsView, self).get_context_data(**kwargs)
@@ -234,7 +234,7 @@ class TwoFactorSettingsView(TemplateView):
         return context
 
 class KeyManagementView(ListView):
-    template_name = 'u2f/key_list.html'
+    template_name = 'kagi/key_list.html'
 
     def get_queryset(self):
         return self.request.user.u2f_keys.all()
@@ -251,7 +251,7 @@ class KeyManagementView(ListView):
 
 
 class BackupCodesView(ListView):
-    template_name = 'u2f/backup_codes.html'
+    template_name = 'kagi/backup_codes.html'
 
     def get_queryset(self):
         return self.request.user.backup_codes.all()
@@ -264,7 +264,7 @@ class BackupCodesView(ListView):
 
 class AddTOTPDeviceView(OriginMixin, FormView):
     form_class = TOTPForm
-    template_name = 'u2f/totp_device.html'
+    template_name = 'kagi/totp_device.html'
     success_url = reverse_lazy('u2f:two-factor-settings')
 
     def gen_key(self):
@@ -342,7 +342,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
 
 
 class TOTPDeviceManagementView(ListView):
-    template_name = 'u2f/totpdevice_list.html'
+    template_name = 'kagi/totpdevice_list.html'
 
     def get_queryset(self):
         return self.request.user.totp_devices.all()

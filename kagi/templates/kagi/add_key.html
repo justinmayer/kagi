@@ -1,5 +1,5 @@
-{% extends "u2f/base.html" %}
-{% load argonauts %}
+{% extends "kagi/base.html" %}
+{% load json %}
 {% load i18n %}
 {% load static %}
 
@@ -13,8 +13,8 @@
     {{ form.response }}
 </form>
 
-<script type="application/json" id="django_u2f_registration">
+<script type="application/json" id="kagi_registration">
   {{ registration_request|json }}
 </script>
-<script src="{% static 'django_u2f/django_u2f.js' %}"></script>
+<script src="{% static 'kagi/kagi.js' %}"></script>
 {% endblock %}

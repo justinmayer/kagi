@@ -1,9 +1,9 @@
-{% extends "u2f/base.html" %}
+{% extends "kagi/base.html" %}
 {% load i18n %}
 
 {% block content %}
 {{ block.super }}
-<h1>{% trans "TOTP (Authenticator) Devices" %}</h1>
+<h1>U2F Keys</h1>
 <a href="{% url 'u2f:two-factor-settings' %}">{% trans '&larr; Back to settings' %}</a>
 <table>
   <thead>
@@ -13,14 +13,14 @@
     </tr>
   </thead>
   <tbody>
-    {% for device in object_list %}
+    {% for key in object_list %}
     <tr>
-      <td>{{ device.created_at }}</td>
+      <td>{{ key.created_at }}</td>
       {% trans 'Never' as never %}
-      <td>{{ device.last_used_at|default:never}}</td>
+      <td>{{ key.last_used_at|default:never }}</td>
       <td>
         <form method="post">{% csrf_token %}
-          <input name="device_id" type="hidden" value="{{ device.pk }}">
+          <input name="key_id" type="hidden" value="{{ key.pk }}">
           <input type="submit" name="delete" value="X">
         </form>
       </td>
@@ -28,5 +28,5 @@
     {% endfor %}
   </tbody>
 </table>
-<a href="{% url 'u2f:add-totp' %}">{% trans 'Add another TOTP (Authenticator) Device' %}</a>
+<a href="{% url 'u2f:add-u2f-key' %}">{% trans 'Add another key' %}</a>
 {% endblock %}
