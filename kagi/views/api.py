@@ -50,7 +50,7 @@ def webauthn_verify_credential_info(request):
     challenge = request.session['challenge']
     ukey = request.session['register_ukey']
 
-    registration_response = request.form
+    registration_response = request.POST
     trust_anchor_dir = settings.WEBAUTHN_TRUSTED_CERTIFICATES
     trusted_attestation_cert_required = True
     self_attestation_permitted = True
