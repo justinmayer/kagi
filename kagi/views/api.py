@@ -45,6 +45,6 @@ def webauthn_begin_activate(request):
 @login_required
 @csrf_exempt
 @require_http_methods(["POST"])
-def webauthn_verify_assertion_info(request):
+def webauthn_verify_credential_info(request):
     print(request.POST)
     return JsonResponse(request.POST)
