@@ -37,7 +37,7 @@ class U2FLoginView(LoginView):
 
     def requires_two_factor(self, user):
         return (user.u2f_keys.exists() or
-                user.backup_codes.exists() or
+                user.webauthn_keys.exists() or
                 user.totp_devices.exists())
 
     def form_valid(self, form):

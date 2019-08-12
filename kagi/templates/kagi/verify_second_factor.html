@@ -10,6 +10,14 @@
   {% trans 'Please verify one of the authentication methods below.' %}
 </p>
 
+<form id="login-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}" />
+    <button id="login" type="button">
+        {% trans "Tap here to log in with your WebAuthn key." %}
+    </button>
+</form>
+
 {% if forms.u2f %}
 <div class="method u2f">
   <p>
@@ -59,5 +67,5 @@
 </div>
 {% endif %}
 
-<script src="{% static 'kagi/kagi.js' %}"></script>
+<script src="{% static 'kagi/webauthn.js' %}"></script>
 {% endblock %}

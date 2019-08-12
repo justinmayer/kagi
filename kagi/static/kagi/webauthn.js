@@ -109,7 +109,8 @@ const getCredentialRequestOptionsFromServer = async (formData) => {
     );
 }
 
-const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) => {
+const transformCredentialRequestOptions = (responseFromServer) => {
+  return responseFromServer["assertion_candidates"].map((credentialRequestOptionsFromServer) => {
     let {challenge, allowCredentials} = credentialRequestOptionsFromServer;
 
     challenge = Uint8Array.from(
@@ -128,6 +129,7 @@ const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) =
         {challenge, allowCredentials});
 
     return transformedCredentialRequestOptions;
+  });
 };
 
 
@@ -178,6 +180,7 @@ const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => 
  * @param {Event} e 
  */
 const didClickLogin = async (e) => {
+  console.log("Login clicked");
     e.preventDefault();
     // gather the data in the form
     const form = document.querySelector('#login-form');
@@ -198,28 +201,35 @@ const didClickLogin = async (e) => {
 
     // request the authenticator to create an assertion signature using the
     // credential private key
-    let assertion;
-    try {
-        assertion = await navigator.credentials.get({
-            publicKey: transformedCredentialRequestOptions,
-        });
-    } catch (err) {
-        return console.error("Error when creating credential:", err);
+    let assertion = Promise.all(
+      transformedCredentialRequestOptions.map(
+        (publicKey) => {
+          return navigator.credentials.get({publicKey}).catch((err) => false);
+        })
+    ).then((assertions) => {
+           for (var assertion of assertions) {
+             if (assertion)
+               return assertion;
+           }
+    })
+
+    if (assertion.length > 0) {
+      // we now have an authentication assertion! encode the byte arrays contained
+      // in the assertion data as strings for posting to the server
+      const transformedAssertionForServer = transformAssertionForServer(assertion);
+
+      // post the assertion to the server for verification.
+      let response;
+      try {
+          response = await postAssertionToServer(transformedAssertionForServer);
+      } catch (err) {
+          return console.error("Error when validating assertion on server:", err);
+      }
+
+      window.location.href = response["redirect_to"];
+    } else {
+      alert("No keys found for this user.");
     }
-
-    // we now have an authentication assertion! encode the byte arrays contained
-    // in the assertion data as strings for posting to the server
-    const transformedAssertionForServer = transformAssertionForServer(assertion);
-
-    // post the assertion to the server for verification.
-    let response;
-    try {
-        response = await postAssertionToServer(transformedAssertionForServer);
-    } catch (err) {
-        return console.error("Error when validating assertion on server:", err);
-    }
-
-    window.location.reload();
 };
 
 /**
@@ -291,7 +301,8 @@ const transformAssertionForServer = (newAssertion) => {
  * @param {Object} assertionDataForServer 
  */
 const postAssertionToServer = async (assertionDataForServer) => {
-    const formData = new FormData();
+    const form = document.querySelector('#login-form');
+    const formData = new FormData(form);
     Object.entries(assertionDataForServer).forEach(([key, value]) => {
         formData.set(key, value);
     });
@@ -305,6 +316,13 @@ const postAssertionToServer = async (assertionDataForServer) => {
 
 
 document.addEventListener("DOMContentLoaded", e => {
-    document.querySelector('#register').addEventListener('click', didClickRegister);
-    document.querySelector('#login').addEventListener('click', didClickLogin);
+  const registerElement = document.querySelector('#register');
+  if (registerElement) {
+    registerElement.addEventListener('click', didClickRegister);
+  }
+
+  const loginElement = document.querySelector('#login');
+  if (loginElement) {
+      loginElement.addEventListener('click', didClickLogin);
+  }
 });

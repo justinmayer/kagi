@@ -1,6 +1,9 @@
 import random
 import string
 
+from django.contrib.auth import load_backend
+from django.conf import settings
+
 
 def generate_challenge(challenge_len):
     return "".join([
@@ -29,3 +32,17 @@ def get_origin(request):
         scheme=request.scheme,
         host=request.get_host(),
     )
+
+
+def get_user(request):
+    try:
+        user_id = request.session['u2f_pre_verify_user_pk']
+        backend_path = request.session['u2f_pre_verify_user_backend']
+        assert backend_path in settings.AUTHENTICATION_BACKENDS
+        backend = load_backend(backend_path)
+        user = backend.get_user(user_id)
+        if user is not None:
+            user.backend = backend_path
+        return user
+    except (KeyError, AssertionError):
+        return None

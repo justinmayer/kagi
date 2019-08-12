@@ -1,5 +1,5 @@
 VIRTUALENV = virtualenv --python=python3
-VENV := $(shell echo $${VIRTUAL_ENV-.venv})
+VENV := $(shell echo $${VIRTUAL_ENV-.venv} | xargs realpath)
 PYTHON = $(VENV)/bin/python
 INSTALL_STAMP = $(VENV)/.install.stamp
 
@@ -16,6 +16,10 @@ $(PYTHON):
 	$(VIRTUALENV) $(VENV)
 
 serve: $(INSTALL_STAMP)
-	cd testproj; ../$(PYTHON) manage.py runserver_plus \
+	cd testproj; $(PYTHON) manage.py runserver_plus \
         --cert-file $(VENV)/localhost.crt \
         --key-file $(VENV)/localhost.key
+
+
+migrate:
+	cd testproj; $(PYTHON) manage.py migrate

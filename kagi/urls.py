@@ -16,4 +16,6 @@ urlpatterns = [
     url(r'^totp-devices/', views.totp_devices, name='totp-devices'),
     url(r'^api/begin-activate/', api.webauthn_begin_activate, name='begin-activate'),
     url(r'^api/verify-credential-info/', api.webauthn_verify_credential_info, name='verify-credential-info'),
+    url(r'^api/begin-assertion/', api.webauthn_begin_assertion, name='begin-assertion'),
+    url(r'^api/verify-assertion/', api.webauthn_verify_assertion, name='verify-assertion'),
 ]
