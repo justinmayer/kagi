@@ -109,27 +109,25 @@ const getCredentialRequestOptionsFromServer = async (formData) => {
     );
 }
 
-const transformCredentialRequestOptions = (responseFromServer) => {
-  return responseFromServer["assertion_candidates"].map((credentialRequestOptionsFromServer) => {
-    let {challenge, allowCredentials} = credentialRequestOptionsFromServer;
+const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) => {
+  let {challenge, allowCredentials} = credentialRequestOptionsFromServer["assertion_candidates"][0];
 
-    challenge = Uint8Array.from(
-        atob(challenge), c => c.charCodeAt(0));
+  challenge = Uint8Array.from(
+    atob(challenge), c => c.charCodeAt(0));
 
-    allowCredentials = allowCredentials.map(credentialDescriptor => {
-        let {id} = credentialDescriptor;
-        id = id.replace(/\_/g, "/").replace(/\-/g, "+");
-        id = Uint8Array.from(atob(id), c => c.charCodeAt(0));
-        return Object.assign({}, credentialDescriptor, {id});
-    });
-
-    const transformedCredentialRequestOptions = Object.assign(
-        {},
-        credentialRequestOptionsFromServer,
-        {challenge, allowCredentials});
-
-    return transformedCredentialRequestOptions;
+  allowCredentials = allowCredentials.map(credentialDescriptor => {
+    let {id} = credentialDescriptor;
+    id = id.replace(/\_/g, "/").replace(/\-/g, "+");
+    id = Uint8Array.from(atob(id), c => c.charCodeAt(0));
+    return Object.assign({}, credentialDescriptor, {id});
   });
+
+  const transformedCredentialRequestOptions = Object.assign(
+    {},
+    credentialRequestOptionsFromServer,
+    {challenge, allowCredentials});
+  
+  return transformedCredentialRequestOptions;
 };
 
 
@@ -201,35 +199,27 @@ const didClickLogin = async (e) => {
 
     // request the authenticator to create an assertion signature using the
     // credential private key
-    let assertion = Promise.all(
-      transformedCredentialRequestOptions.map(
-        (publicKey) => {
-          return navigator.credentials.get({publicKey}).catch((err) => false);
-        })
-    ).then((assertions) => {
-           for (var assertion of assertions) {
-             if (assertion)
-               return assertion;
-           }
-    })
-
-    if (assertion.length > 0) {
-      // we now have an authentication assertion! encode the byte arrays contained
-      // in the assertion data as strings for posting to the server
-      const transformedAssertionForServer = transformAssertionForServer(assertion);
-
-      // post the assertion to the server for verification.
-      let response;
-      try {
-          response = await postAssertionToServer(transformedAssertionForServer);
-      } catch (err) {
-          return console.error("Error when validating assertion on server:", err);
-      }
-
-      window.location.href = response["redirect_to"];
-    } else {
-      alert("No keys found for this user.");
+    let assertion;
+    try {
+        assertion = await navigator.credentials.get({
+            publicKey: transformedCredentialRequestOptions,
+        });
+    } catch (err) {
+        return console.error("Error when creating credential:", err);
     }
+    // we now have an authentication assertion! encode the byte arrays contained
+    // in the assertion data as strings for posting to the server
+    const transformedAssertionForServer = transformAssertionForServer(assertion);
+
+    // post the assertion to the server for verification.
+    let response;
+    try {
+        response = await postAssertionToServer(transformedAssertionForServer);
+    } catch (err) {
+        return console.error("Error when validating assertion on server:", err);
+    }
+
+    window.location.href = response["redirect_to"];
 };
 
 /**
