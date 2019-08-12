@@ -23,8 +23,8 @@ import qrcode
 from qrcode.image.svg import SvgPathImage
 from u2flib_server import u2f
 
-from .forms import KeyResponseForm, BackupCodeForm, TOTPForm, KeyRegistrationForm
-from .models import TOTPDevice
+from ..forms import KeyResponseForm, BackupCodeForm, TOTPForm, RegisterKeyForm
+from ..models import TOTPDevice
 
 
 class U2FLoginView(LoginView):
@@ -83,20 +83,11 @@ class OriginMixin(object):
 
 class AddKeyView(OriginMixin, FormView):
     template_name = 'kagi/add_key.html'
-    form_class = KeyRegistrationForm
+    form_class = RegisterKeyForm
     success_url = reverse_lazy('u2f:u2f-keys')
 
     def dispatch(self, request, *args, **kwargs):
         return super(AddKeyView, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super(AddKeyView, self).get_form_kwargs()
-        kwargs.update(
-            user=self.request.user,
-            request=self.request,
-            appId=self.get_origin(),
-        )
-        return kwargs
 
     def get_context_data(self, **kwargs):
         kwargs = super(AddKeyView, self).get_context_data(**kwargs)

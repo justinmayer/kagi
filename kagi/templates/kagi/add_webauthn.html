@@ -1,5 +1,4 @@
 {% extends "kagi/base.html" %}
-{% load json %}
 {% load i18n %}
 {% load static %}
 
@@ -9,9 +8,8 @@
 
 <form id="register-form" name="register" method="get">
     {% csrf_token %}
-    {{ form }}
+    <input name="register_username" type="hidden" value="{{ user.get_username }}"></input>
+    <input name="register_display_name" type="hidden" value="{{ user.get_full_name }}"></input>
     <button id="register" type="submit">Add WebAuthn Key</button>
 </form>
-
-<script src="{% static 'kagi/webauthn.js' %}"></script>
 {% endblock %}

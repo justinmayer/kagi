@@ -26,6 +26,7 @@ setup(
         'django-sslserver',
         'django',
         'qrcode',
+        'webauthn',
     ],
     author='Justin Mayer',
     author_email='gavinwahl@gmail.com',
