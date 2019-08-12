@@ -45,7 +45,8 @@ following steps (using virtualenv is optional)::
    pip install -r requirements.txt
    python manage.py migrate
    python manage.py createsuperuser
-   python manage.py runserver_plus --cert-file $VIRTUAL_ENV/localhost.crt --key-file $VIRTUAL_ENV/localhost.key
+   ./mkcert.sh
+   python manage.py runserver_plus --cert-file ./localhost.crt --key-file ./localhost.key
 
 Look at supported browser version there: https://caniuse.com/webauthn
 U2F also requires that the page is served over a secure connection.

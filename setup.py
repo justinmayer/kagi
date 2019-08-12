@@ -23,10 +23,11 @@ setup(
 
     install_requires=[
         'python-u2flib-server>=5.0.0',
-        'django-sslserver',
+        'django-extensions',
         'django',
         'qrcode',
         'webauthn',
+        'Werkzeug',
     ],
     author='Justin Mayer',
     author_email='gavinwahl@gmail.com',
