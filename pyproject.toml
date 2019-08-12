@@ -9,7 +9,7 @@ keywords = ["Django", "WebAuthn", "authentication", "MFA", "2FA"]
 
 [tool.poetry.dependencies]
 Django = "^2.2"
-python = "^3.7"
+python = "^3.6"
 qrcode = "^6.1"
 webauthn = "^0.4.5"
 
