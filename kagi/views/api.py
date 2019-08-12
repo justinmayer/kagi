@@ -90,7 +90,7 @@ def webauthn_verify_credential_info(request):
         user = request.user,
         key_name = request.session.get("key_name", ""),
         ukey=ukey,
-        public_key=webauthn_credential.public_key,
+        public_key=webauthn_credential.public_key.decode('utf-8'),
         credential_id=webauthn_credential.credential_id.decode('utf-8'),
         sign_count=webauthn_credential.sign_count,
     )
