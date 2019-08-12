@@ -8,6 +8,7 @@
 <table>
   <thead>
     <tr>
+      <th>{% trans 'Key name' %}</th>
       <th>{% trans 'Added on' %}</th>
       <th>{% trans 'Last used on' %}</th>
     </tr>
@@ -15,6 +16,7 @@
   <tbody>
     {% for key in object_list %}
     <tr>
+      <td>{{ key.key_name }}</td>
       <td>{{ key.created_at }}</td>
       {% trans 'Never' as never %}
       <td>{{ key.last_used_at|default:never }}</td>
