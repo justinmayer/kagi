@@ -290,7 +290,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         img = qrcode.make(data, image_factory=SvgPathImage)
         buf = BytesIO()
         img.save(buf)
-        return buf.getvalue()
+        return buf.getvalue().decode('utf-8')
 
     @cached_property
     def key(self):
