@@ -10,7 +10,7 @@
     window.Kagi = window.Kagi || {};
     Kagi.begin_activate = '{% url 'kagi:begin-activate' %}';
     // Kagi.begin_assertion = '/kagi/api/begin-assertion/';
-    // Kagi.verify_credential_info = '/kagi/api/verify-credential-info/';
+    Kagi.verify_credential_info = '{% url 'kagi:verify-credential-info' %}';
     // Kagi.verify_assertion = '/kagi/api/verify-assertion/';
 </script>
 {{ block.super }}
