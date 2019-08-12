@@ -1,8 +1,8 @@
 import os
 from base64 import b32encode, b32decode
 from collections import OrderedDict
-from six import BytesIO
-from six.moves.urllib.parse import quote
+from io import BytesIO
+from urllib.parse import quote
 
 from django.views.generic import FormView, ListView, TemplateView
 from django.contrib.auth.forms import AuthenticationForm
@@ -23,13 +23,13 @@ import qrcode
 from qrcode.image.svg import SvgPathImage
 from u2flib_server import u2f
 
-from .forms import KeyResponseForm, BackupCodeForm, TOTPForm, KeyRegistrationForm
-from .models import TOTPDevice
+from ..forms import KeyResponseForm, BackupCodeForm, TOTPForm, RegisterKeyForm
+from ..models import TOTPDevice
 
 
 class U2FLoginView(LoginView):
     form_class = AuthenticationForm
-    template_name = 'u2f/login.html'
+    template_name = 'kagi/login.html'
 
     @property
     def is_admin(self):
@@ -37,7 +37,7 @@ class U2FLoginView(LoginView):
 
     def requires_two_factor(self, user):
         return (user.u2f_keys.exists() or
-                user.backup_codes.exists() or
+                user.webauthn_keys.exists() or
                 user.totp_devices.exists())
 
     def form_valid(self, form):
@@ -53,7 +53,7 @@ class U2FLoginView(LoginView):
             redirect_to = self.request.POST.get(auth.REDIRECT_FIELD_NAME,
                                                 self.request.GET.get(auth.REDIRECT_FIELD_NAME, ''))
             params = {}
-            if is_safe_url(url=redirect_to, host=self.request.get_host()):
+            if is_safe_url(url=redirect_to, allowed_hosts=[self.request.get_host()], require_https=True):
                 params[auth.REDIRECT_FIELD_NAME] = redirect_to
             if self.is_admin:
                 params['admin'] = 1
@@ -82,21 +82,12 @@ class OriginMixin(object):
 
 
 class AddKeyView(OriginMixin, FormView):
-    template_name = 'u2f/add_key.html'
-    form_class = KeyRegistrationForm
+    template_name = 'kagi/add_key.html'
+    form_class = RegisterKeyForm
     success_url = reverse_lazy('u2f:u2f-keys')
 
     def dispatch(self, request, *args, **kwargs):
         return super(AddKeyView, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super(AddKeyView, self).get_form_kwargs()
-        kwargs.update(
-            user=self.request.user,
-            request=self.request,
-            appId=self.get_origin(),
-        )
-        return kwargs
 
     def get_context_data(self, **kwargs):
         kwargs = super(AddKeyView, self).get_context_data(**kwargs)
@@ -129,7 +120,7 @@ class AddKeyView(OriginMixin, FormView):
 
 
 class VerifySecondFactorView(OriginMixin, TemplateView):
-    template_name = 'u2f/verify_second_factor.html'
+    template_name = 'kagi/verify_second_factor.html'
 
     @property
     def form_classes(self):
@@ -218,13 +209,13 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
 
         redirect_to = self.request.POST.get(auth.REDIRECT_FIELD_NAME,
                                             self.request.GET.get(auth.REDIRECT_FIELD_NAME, ''))
-        if not is_safe_url(url=redirect_to, host=self.request.get_host()):
+        if not is_safe_url(url=redirect_to, allowed_hosts=[self.request.get_host()]):
             redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
         return HttpResponseRedirect(redirect_to)
 
 
 class TwoFactorSettingsView(TemplateView):
-    template_name = 'u2f/two_factor_settings.html'
+    template_name = 'kagi/two_factor_settings.html'
 
     def get_context_data(self, **kwargs):
         context= super(TwoFactorSettingsView, self).get_context_data(**kwargs)
@@ -234,10 +225,10 @@ class TwoFactorSettingsView(TemplateView):
         return context
 
 class KeyManagementView(ListView):
-    template_name = 'u2f/key_list.html'
+    template_name = 'kagi/key_list.html'
 
     def get_queryset(self):
-        return self.request.user.u2f_keys.all()
+        return self.request.user.webauthn_keys.all()
 
     def post(self, request):
         assert 'delete' in self.request.POST
@@ -251,7 +242,7 @@ class KeyManagementView(ListView):
 
 
 class BackupCodesView(ListView):
-    template_name = 'u2f/backup_codes.html'
+    template_name = 'kagi/backup_codes.html'
 
     def get_queryset(self):
         return self.request.user.backup_codes.all()
@@ -264,7 +255,7 @@ class BackupCodesView(ListView):
 
 class AddTOTPDeviceView(OriginMixin, FormView):
     form_class = TOTPForm
-    template_name = 'u2f/totp_device.html'
+    template_name = 'kagi/totp_device.html'
     success_url = reverse_lazy('u2f:two-factor-settings')
 
     def gen_key(self):
@@ -290,7 +281,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         img = qrcode.make(data, image_factory=SvgPathImage)
         buf = BytesIO()
         img.save(buf)
-        return buf.getvalue()
+        return buf.getvalue().decode('utf-8')
 
     @cached_property
     def key(self):
@@ -342,7 +333,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
 
 
 class TOTPDeviceManagementView(ListView):
-    template_name = 'u2f/totpdevice_list.html'
+    template_name = 'kagi/totpdevice_list.html'
 
     def get_queryset(self):
         return self.request.user.totp_devices.all()

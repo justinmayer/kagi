@@ -1,4 +1,0 @@
-include LICENSE
-include *.rst
-recursive-include kagi/static *
-recursive-include kagi/templates *

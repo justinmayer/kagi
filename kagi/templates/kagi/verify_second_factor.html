@@ -1,5 +1,5 @@
-{% extends "u2f/base.html" %}
-{% load argonauts %}
+{% extends "kagi/base.html" %}
+{% load json %}
 {% load i18n %}
 {% load static %}
 
@@ -9,6 +9,14 @@
 <p>
   {% trans 'Please verify one of the authentication methods below.' %}
 </p>
+
+<form id="login-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}" />
+    <button id="login" type="button">
+        {% trans "Tap here to log in with your WebAuthn key." %}
+    </button>
+</form>
 
 {% if forms.u2f %}
 <div class="method u2f">
@@ -29,7 +37,7 @@
       <input type="hidden" name="type" value="u2f">
   </form>
 
-  <script type="application/json" id="django_u2f_request">
+  <script type="application/json" id="kagi_request">
     {{ forms.u2f.sign_request|json }}
   </script>
 </div>
@@ -59,5 +67,5 @@
 </div>
 {% endif %}
 
-<script src="{% static 'django_u2f/django_u2f.js' %}"></script>
+<script src="{% static 'kagi/webauthn.js' %}"></script>
 {% endblock %}

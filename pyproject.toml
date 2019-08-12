@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "kagi"
+version = "0.1.0"
+description = "Django app for WebAuthn and TOTP-based multi-factor authentication"
+authors = ["Justin Mayer <entroP@gmail.com>", "Rémy Hubscher <hubscher.remy@gmail.com>"]
+license = "BSD-2-Clause"
+readme = "README.rst"
+keywords = ["Django", "WebAuthn", "authentication", "MFA", "2FA"]
+
+[tool.poetry.dependencies]
+Django = "^2.2"
+python = "^3.6"
+qrcode = "^6.1"
+webauthn = "^0.4.5"
+
+[tool.poetry.dev-dependencies]
+black = {version = "^19.3b0",allows-prereleases = true}
+django-extensions = "^2.2"
+flake8 = "^3.7"
+flake8-black = "^0.1.0"
+pyOpenSSL = "^19.0"
+Werkzeug = "^0.15.5"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

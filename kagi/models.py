@@ -1,9 +1,6 @@
-from __future__ import division
-
 import datetime
 import string
 import hmac
-import six
 
 from django.db import models
 from django.conf import settings
@@ -31,6 +28,20 @@ class U2FKey(models.Model):
             'appId': self.app_id,
             'version': 'U2F_V2',
         }
+
+
+class WebAuthnKey(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="webauthn_keys", on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField(null=True)
+
+    key_name = models.CharField(max_length=64)
+    public_key = models.TextField(unique=True)
+    ukey = models.TextField(unique=True)
+    credential_id = models.TextField(unique=True)
+    sign_count = models.IntegerField()
 
 
 class BackupCodeManager(models.Manager):
@@ -84,12 +95,9 @@ class TOTPDevice(models.Model):
         if self.last_t is not None:
             times_to_check = [t for t in times_to_check if T(t) > self.last_t]
 
-        # not sure why django gives you a memory view instead of a bytes object
-        key = six.binary_type(self.key)
-
         token = str(token)
         for t in times_to_check:
-            if hmac.compare_digest(totp(key, t), token):
+            if hmac.compare_digest(totp(self.key, t), token):
                 self.last_t = T(t)
                 return True
         return False

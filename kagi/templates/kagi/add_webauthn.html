@@ -1,0 +1,15 @@
+{% extends "kagi/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{{ block.super }}
+<p>{% trans 'To add a security key to your account, insert it, tap the button below, and accept the browser prompt to add the key.' %}</p>
+
+<form id="register-form" name="register" method="get">
+    {% csrf_token %}
+    <input name="register_username" type="hidden" value="{{ user.get_username }}"></input>
+    <input name="register_display_name" type="hidden" value="{{ user.get_full_name }}"></input>
+    <button id="register" type="submit">Add WebAuthn Key</button>
+</form>
+{% endblock %}

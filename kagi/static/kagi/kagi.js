@@ -12,7 +12,7 @@ if (typeof window.u2f === 'undefined')
 
 
 var request;
-var requestElem = document.getElementById('django_u2f_request');
+var requestElem = document.getElementById('kagi_request');
 if (requestElem) {
   request = JSON.parse(requestElem.textContent);
   u2f.sign(request.appId, request.challenge, request.registeredKeys, function(resp) {
@@ -25,7 +25,7 @@ if (requestElem) {
 }
 
 
-var registrationElem = document.getElementById('django_u2f_registration');
+var registrationElem = document.getElementById('kagi_registration');
 if (registrationElem) {
   request = JSON.parse(registrationElem.textContent);
   u2f.register(request.appId, request.registerRequests, request.registeredKeys, function(resp) {

@@ -82,3 +82,9 @@ class TOTPForm(SecondFactorForm):
                 return True
         self.add_error('token', self.INVALID_ERROR_MESSAGE)
         return False
+
+# New things below
+
+class RegisterKeyForm(forms.Form):
+    # TODO: Rename me in KeyRegistrationForm eventually?
+    key_name = forms.CharField(label=_("Key name"))

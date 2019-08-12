@@ -41,7 +41,7 @@ def make_login_view(view_class):
 
 def monkeypatch_admin(view_class=None):
     if view_class is None:
-        from django_u2f.views import U2FLoginView
+        from kagi.views import U2FLoginView
         view_class = U2FLoginView
 
     from django.contrib.admin.sites import AdminSite

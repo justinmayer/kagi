@@ -38,17 +38,13 @@ following steps (using virtualenv is optional)::
 
    git clone https://github.com/justinmayer/kagi
    cd kagi
-   virtualenv -p python3 venv
-   source venv/bin/activate
-   pip install -e .
+   make install
+   make serve
+
    cd testproj
-   pip install -r requirements.txt
    python manage.py migrate
    python manage.py createsuperuser
-
-   # finally create a self-signed certificate and start the webserver
-   ./mkcert.sh
-   python manage.py runserver_plus --cert localhost
+   
 
 Look at supported browser version there: https://caniuse.com/webauthn
 U2F also requires that the page is served over a secure connection.
