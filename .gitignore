@@ -2,8 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-localhost.crt
-localhost.key
 
 # C extensions
 *.so
