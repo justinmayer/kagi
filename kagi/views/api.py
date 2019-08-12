@@ -125,7 +125,7 @@ def webauthn_begin_assertion(request):
     for key in keys:
         webauthn_user = webauthn.WebAuthnUser(
             ukey, username, display_name, settings.WEBAUTHN_ICON_URL,
-            key.credential_id, key.pub_key, key.sign_count, settings.RELYING_PARTY_ID
+            key.credential_id, key.public_key, key.sign_count, settings.RELYING_PARTY_ID
         )
         webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(webauthn_user, challenge)
         assertions.append(webauthn_assertion_options.assertion_dict)
@@ -152,7 +152,7 @@ def webauthn_verify_assertion(request):
 
     webauthn_user = webauthn.WebAuthnUser(
         ukey, username, display_name, settings.WEBAUTHN_ICON_URL,
-        key.credential_id, key.pub_key, key.sign_count, settings.RELYING_PARTY_ID
+        key.credential_id, key.public_key, key.sign_count, settings.RELYING_PARTY_ID
     )
 
     webauthn_assertion_response = webauthn.WebAuthnAssertionResponse(
