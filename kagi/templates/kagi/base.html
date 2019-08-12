@@ -12,6 +12,7 @@
     // Kagi.begin_assertion = '/kagi/api/begin-assertion/';
     Kagi.verify_credential_info = '{% url 'kagi:verify-credential-info' %}';
     // Kagi.verify_assertion = '/kagi/api/verify-assertion/';
+    Kagi.keys_list = '{% url 'kagi:u2f-keys' %}';
 </script>
 {{ block.super }}
 

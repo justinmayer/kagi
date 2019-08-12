@@ -33,6 +33,7 @@ if (typeof window.Kagi === 'undefined') {
     begin_assertion: '/kagi/api/begin-assertion/',
     verify_credential_info: '/kagi/api/verify-credential-info/',
     verify_assertion: '/kagi/api/verify-assertion/',
+    keys_list: '/kagi/keys/',
   };
   console.error("window.Kagi is not defined, falling back to default URLs", Kagi);
   
@@ -90,7 +91,7 @@ const didClickRegister = async (e) => {
     }
     
     // reload the page after a successful result
-    window.location.reload();
+    window.location.href = Kagi.keys_list;
 }
 
 /**
