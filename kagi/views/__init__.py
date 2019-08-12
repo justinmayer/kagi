@@ -228,7 +228,7 @@ class KeyManagementView(ListView):
     template_name = 'kagi/key_list.html'
 
     def get_queryset(self):
-        return self.request.user.u2f_keys.all()
+        return self.request.user.webauthn_keys.all()
 
     def post(self, request):
         assert 'delete' in self.request.POST

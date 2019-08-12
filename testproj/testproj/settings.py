@@ -131,3 +131,4 @@ INTERNAL_IPS = ['127.0.0.1']
 RELYING_PARTY_ID = "localhost"
 RELYING_PARTY_NAME = "Kagi Test Project"
 WEBAUTHN_ICON_URL = "http://www.trunat.fr/fichiers/avatars/avatar.png"
+WEBAUTHN_TRUSTED_CERTIFICATES = os.path.join(BASE_DIR, '..', 'trusted_attestation_roots')
