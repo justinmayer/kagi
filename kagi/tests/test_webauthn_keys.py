@@ -216,7 +216,7 @@ def test_verify_assertion_validates_the_user_webauthn_key(client):
     )
     assert response.status_code == 302
     assert response.url == reverse("kagi:verify-second-factor")
-    
+
     # We authenticate with username/password
     challenge = "k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
 
@@ -279,7 +279,7 @@ def test_verify_assertion_fails_if_missing_user_webauthn_key(client):
     )
     assert response.status_code == 302
     assert response.url == reverse("kagi:verify-second-factor")
-    
+
     # We authenticate with username/password
     challenge = "k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
 
@@ -298,9 +298,7 @@ def test_verify_assertion_fails_if_missing_user_webauthn_key(client):
             {"id": "credential-id", "assertion": "payload"},
         )
     assert response.status_code == 400
-    assert response.json() == {
-        "fail": "Key does not exist.",
-    }
+    assert response.json() == {"fail": "Key does not exist."}
 
 
 @pytest.mark.django_db
@@ -319,7 +317,7 @@ def test_verify_assertion_validates_the_assertion(client):
     )
     assert response.status_code == 302
     assert response.url == reverse("kagi:verify-second-factor")
-    
+
     # We authenticate with username/password
     challenge = "k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
 
@@ -339,6 +337,4 @@ def test_verify_assertion_validates_the_assertion(client):
         )
 
     assert response.status_code == 400
-    assert response.json() == {
-        "fail": "Assertion failed. Error: An error occurred",
-    }
+    assert response.json() == {"fail": "Assertion failed. Error: An error occurred"}

@@ -45,7 +45,7 @@ def make_login_view(view_class):
 
 def monkeypatch_admin(view_class=None):
     if view_class is None:
-        from kagi.views import KagiLoginView
+        from kagi.views.login import KagiLoginView
 
         view_class = KagiLoginView
 

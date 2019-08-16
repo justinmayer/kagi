@@ -43,5 +43,5 @@ def get_user(request):
         if user is not None:
             user.backend = backend_path
         return user
-    except (KeyError, AssertionError):
+    except (KeyError, AssertionError):  # pragma: no cover
         return None
