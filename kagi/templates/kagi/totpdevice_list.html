@@ -4,7 +4,7 @@
 {% block content %}
 {{ block.super }}
 <h1>{% trans "TOTP (Authenticator) Devices" %}</h1>
-<a href="{% url 'u2f:two-factor-settings' %}">{% trans '&larr; Back to settings' %}</a>
+<a href="{% url 'kagi:two-factor-settings' %}">{% trans '&larr; Back to settings' %}</a>
 <table>
   <thead>
     <tr>
@@ -28,5 +28,5 @@
     {% endfor %}
   </tbody>
 </table>
-<a href="{% url 'u2f:add-totp' %}">{% trans 'Add another TOTP (Authenticator) Device' %}</a>
+<a href="{% url 'kagi:add-totp' %}">{% trans 'Add another TOTP (Authenticator) Device' %}</a>
 {% endblock %}

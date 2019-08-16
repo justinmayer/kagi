@@ -9,22 +9,37 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('kagi', '0001_initial'),
+        ("kagi", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WebAuthnKey',
+            name="WebAuthnKey",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_used_at', models.DateTimeField(null=True)),
-                ('key_name', models.CharField(max_length=64)),
-                ('public_key', models.TextField(unique=True)),
-                ('ukey', models.TextField(unique=True)),
-                ('credential_id', models.TextField(unique=True)),
-                ('sign_count', models.IntegerField()),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='webauthn_keys', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_used_at", models.DateTimeField(null=True)),
+                ("key_name", models.CharField(max_length=64)),
+                ("public_key", models.TextField(unique=True)),
+                ("ukey", models.TextField(unique=True)),
+                ("credential_id", models.TextField(unique=True)),
+                ("sign_count", models.IntegerField()),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="webauthn_keys",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-        ),
+        )
     ]

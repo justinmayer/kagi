@@ -1,1 +1,1 @@
-default_app_config = 'kagi.apps.KagiConfig'
+default_app_config = "kagi.apps.KagiConfig"

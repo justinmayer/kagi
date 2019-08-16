@@ -8,7 +8,7 @@ all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON) pyproject.toml
 	$(VENV)/bin/pip install -U poetry
-	$(VENV)/bin/poetry install
+	$(VENV)/bin/poetry install || $(VENV)/bin/poetry update
 	touch $(INSTALL_STAMP)
 
 virtualenv: $(PYTHON)
@@ -20,6 +20,14 @@ serve: $(INSTALL_STAMP)
         --cert-file $(VENV)/localhost.crt \
         --key-file $(VENV)/localhost.key
 
+tests: $(INSTALL_STAMP)
+	$(VENV)/bin/pytest -s --doctest-modules --cov-report term-missing --cov-fail-under 100 --cov kagi
 
 migrate:
 	cd testproj; $(PYTHON) manage.py migrate
+
+black: $(INSTALL_STAMP)
+	$(VENV)/bin/black kagi testproj
+
+isort: $(INSTALL_STAMP)
+	$(VENV)/bin/isort --recursive .isort.cfg kagi/* testproj/*
