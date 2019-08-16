@@ -10,23 +10,18 @@ jobs:
       - run: poetry config settings.virtualenvs.in-project true
       - run:
           command: poetry install
-      - save_cache:
-          paths:
-            - ".venv"
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.7/site-packages"
       - run:
-        command: |
-          poetry run pytest --cov=kagi --cov-report term-missing
+          command: |
+            poetry run pytest --cov=kagi --cov-report term-missing
       - run:
-        command: |
-          poetry run black --check kagi testproj
+          command: |
+            poetry run black --check kagi testproj
       - run:
-        command: |
-          poetry run isort -c --recursive .isort.cfg kagi/* testproj/*
+          command: |
+            poetry run isort -c --recursive .isort.cfg kagi/* testproj/*
       - run:
-        command: |
-          poetry run flake8 kagi testproj
+          command: |
+            poetry run flake8 kagi testproj
 
 
 workflows:
