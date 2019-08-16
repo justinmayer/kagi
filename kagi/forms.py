@@ -27,10 +27,6 @@ class BackupCodeForm(SecondFactorForm):
             return False
         elif count == 1:
             return True
-        else:
-            assert (
-                False
-            ), "Impossible, there should never be more than one object with the same code."
 
 
 class TOTPForm(SecondFactorForm):

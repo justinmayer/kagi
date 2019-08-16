@@ -261,6 +261,10 @@ def test_verify_assertion_validates_the_user_webauthn_key(client):
         "redirect_to": reverse("kagi:two-factor-settings"),
     }
 
+    # Are we truly logged in?
+    response = client.get(reverse("kagi:two-factor-settings"))
+    assert response.status_code == 200
+
 
 # Testing view verify assertion
 @pytest.mark.django_db
@@ -320,6 +324,9 @@ def test_verify_assertion_validates_the_assertion(client):
 
     # We authenticate with username/password
     challenge = "k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
+
+    response = client.get(reverse("kagi:verify-second-factor"))
+    assert response.status_code == 200
 
     with mock.patch("kagi.views.api.util.generate_challenge", return_value=challenge):
         response = client.post(reverse("kagi:begin-assertion"))

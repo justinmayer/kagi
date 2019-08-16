@@ -13,7 +13,6 @@
 {% if forms.webauthn %}
 <form id="login-form">
     {% csrf_token %}
-    <input type="hidden" name="next" value="{{ next }}" />
     <button id="login" type="button">
         {% trans "Tap here to log in with your WebAuthn key." %}
     </button>

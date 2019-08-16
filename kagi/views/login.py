@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.http import is_safe_url, urlencode
 from django.views.generic import TemplateView
 
-from ..forms import BackupCodeForm, TOTPForm
+from ..forms import BackupCodeForm, SecondFactorForm, TOTPForm
 from .mixin import OriginMixin
 
 
@@ -72,7 +72,7 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
     def form_classes(self):
         ret = {}
         if self.user.webauthn_keys.exists():
-            ret["webauthn"] = True
+            ret["webauthn"] = SecondFactorForm
         if self.user.backup_codes.exists():
             ret["backup"] = BackupCodeForm
         if self.user.totp_devices.exists():
@@ -102,7 +102,7 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         forms = self.get_forms()
         form = forms[request.POST["type"]]
-        if form.is_valid():
+        if form.is_valid() and form.validate_second_factor():
             return self.form_valid(form, forms)
         else:
             return self.form_invalid(forms)
@@ -139,9 +139,6 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
         return kwargs
 
     def form_valid(self, form, forms):
-        if not form.validate_second_factor():
-            return self.form_invalid(forms)
-
         del self.request.session["kagi_pre_verify_user_pk"]
         del self.request.session["kagi_pre_verify_user_backend"]
 
