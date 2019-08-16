@@ -1,0 +1,20 @@
+actions:
+  black:
+    run: black --check {files}
+    fix: black {files}
+    include: "*.py"
+    exclude:
+      - .venv/
+
+  isort:
+    run: isort --recursive -c .isort.cfg {files}
+    fix: isort --recursive .isort.cfg {files}
+    include: "*.py"
+    exclude:
+      - .venv/
+
+  flake8:
+    run: flake8 {files}
+    include: "*.py"
+    exclude:
+      - .venv/

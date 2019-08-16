@@ -5,7 +5,7 @@ INSTALL_STAMP = $(VENV)/.install.stamp
 
 
 all: install
-install: $(INSTALL_STAMP)
+install: $(INSTALL_STAMP) therapist
 $(INSTALL_STAMP): $(PYTHON) pyproject.toml
 	$(VENV)/bin/pip install -U poetry
 	$(VENV)/bin/poetry install || $(VENV)/bin/poetry update
@@ -14,6 +14,9 @@ $(INSTALL_STAMP): $(PYTHON) pyproject.toml
 virtualenv: $(PYTHON)
 $(PYTHON):
 	$(VIRTUALENV) $(VENV)
+
+therapist: .therapist.yml
+	$(VENV)/bin/therapist install
 
 serve: $(INSTALL_STAMP)
 	cd testproj; $(PYTHON) manage.py runserver_plus \
