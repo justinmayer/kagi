@@ -31,3 +31,11 @@ black: $(INSTALL_STAMP)
 
 isort: $(INSTALL_STAMP)
 	$(VENV)/bin/isort --recursive .isort.cfg kagi/* testproj/*
+
+flake8: $(INSTALL_STAMP)
+	$(VENV)/bin/flake8 kagi testproj
+
+lint: $(INSTALL_STAMP)
+	$(VENV)/bin/isort -c --recursive .isort.cfg kagi/* testproj/*
+	$(VENV)/bin/black --check kagi testproj
+	$(VENV)/bin/flake8 kagi testproj
