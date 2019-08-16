@@ -22,7 +22,7 @@ serve: $(INSTALL_STAMP)
         --key-file $(VENV)/localhost.key
 
 tests: $(INSTALL_STAMP)
-	cd testproj; $(VENV)/bin/pytest -s  --doctest-modules --cov-report term-missing --cov-fail-under 100 --cov kagi ../kagi/
+	$(VENV)/bin/pytest -s --doctest-modules --cov-report term-missing --cov-fail-under 100 --cov kagi
 
 migrate:
 	cd testproj; $(PYTHON) manage.py migrate
