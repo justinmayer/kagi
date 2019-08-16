@@ -1,3 +1,4 @@
+from io import StringIO
 from unittest import mock
 
 from django.contrib.auth.models import User
@@ -26,7 +27,9 @@ def test_add_new_backup_codes(admin_client):
 def test_addbackupcode_command():
     User.objects.create(username="admin", password="admin", email="john.doe@kagi.com")
     assert BackupCode.objects.count() == 0
-    call_command("addbackupcode", "admin")
+    stdout = StringIO()
+    call_command("addbackupcode", "admin", stdout=stdout)
+    assert len(stdout.getvalue()) == 8
     assert BackupCode.objects.count() == 1
 
 
@@ -34,7 +37,7 @@ def test_addbackupcode_command():
 def test_addbackupcode_command_can_use_a_specific_code():
     User.objects.create(username="admin", password="admin", email="john.doe@kagi.com")
     assert BackupCode.objects.count() == 0
-    call_command("addbackupcode", "admin", "--code", "123456")
+    call_command("addbackupcode", "admin", "--code", "123456", stdout=StringIO())
     assert BackupCode.objects.count() == 1
 
 
@@ -42,7 +45,7 @@ def test_addbackupcode_command_can_use_a_specific_code():
 def test_addbackupcode_command_refuse_to_create_twice_the_same_code():
     User.objects.create(username="admin", password="admin", email="john.doe@kagi.com")
     assert BackupCode.objects.count() == 0
-    call_command("addbackupcode", "admin")
+    call_command("addbackupcode", "admin", stdout=StringIO())
     code = BackupCode.objects.get().code
     with pytest.raises(CommandError):
         call_command("addbackupcode", "admin", "--code", code)
