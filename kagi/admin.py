@@ -1,6 +1,6 @@
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.urls import reverse
 from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 

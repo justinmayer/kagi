@@ -1,14 +1,13 @@
 import datetime
-import string
 import hmac
+import string
 
-from django.db import models
 from django.conf import settings
+from django.db import IntegrityError, models, transaction
 from django.utils import timezone
-from django.db import transaction, IntegrityError
 from django.utils.crypto import get_random_string
 
-from .oath import totp, T
+from .oath import T, totp
 
 
 class WebAuthnKey(models.Model):

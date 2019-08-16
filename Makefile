@@ -25,3 +25,9 @@ tests: $(INSTALL_STAMP)
 
 migrate:
 	cd testproj; $(PYTHON) manage.py migrate
+
+black: $(INSTALL_STAMP)
+	$(VENV)/bin/black kagi testproj
+
+isort: $(INSTALL_STAMP)
+	$(VENV)/bin/isort --recursive .isort.cfg kagi/* testproj/*

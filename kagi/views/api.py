@@ -1,7 +1,5 @@
-import webauthn
-
-from django.contrib import auth
 from django.conf import settings
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import resolve_url
@@ -9,10 +7,11 @@ from django.utils.http import is_safe_url
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from ..models import WebAuthnKey
-from ..forms import RegisterKeyForm
-from .. import util
+import webauthn
 
+from .. import util
+from ..forms import RegisterKeyForm
+from ..models import WebAuthnKey
 
 # Registration
 

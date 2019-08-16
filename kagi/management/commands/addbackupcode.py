@@ -1,5 +1,9 @@
 from __future__ import print_function
 
+from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand, CommandError
+
+
 """
 This is inspired by addstatictoken in django-otp, which is licensed as follows:
 
@@ -27,9 +31,6 @@ This is inspired by addstatictoken in django-otp, which is licensed as follows:
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-
-from django.core.management.base import BaseCommand, CommandError
-from django.contrib.auth import get_user_model
 
 
 class Command(BaseCommand):

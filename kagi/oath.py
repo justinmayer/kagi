@@ -1,6 +1,6 @@
-import struct
-import hmac
 import hashlib
+import hmac
+import struct
 
 
 def hotp(key, counter, digits=6):

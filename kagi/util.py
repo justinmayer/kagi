@@ -1,8 +1,8 @@
 import random
 import string
 
-from django.contrib.auth import load_backend
 from django.conf import settings
+from django.contrib.auth import load_backend
 
 
 def generate_challenge(challenge_len):

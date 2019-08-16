@@ -1,23 +1,23 @@
-import os
-from base64 import b32encode, b32decode
+from base64 import b32decode, b32encode
 from collections import OrderedDict
 from io import BytesIO
+import os
 from urllib.parse import quote
 
-from django.views.generic import FormView, ListView, TemplateView
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import load_backend
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.decorators import login_required
-from django.contrib import auth, messages
 from django.conf import settings
-from django.http import HttpResponseRedirect
-from django.urls import reverse, reverse_lazy
-from django.utils.http import is_safe_url, urlencode
-from django.shortcuts import resolve_url, get_object_or_404
+from django.contrib import auth, messages
+from django.contrib.auth import load_backend
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, resolve_url
+from django.urls import reverse, reverse_lazy
 from django.utils.functional import cached_property
+from django.utils.http import is_safe_url, urlencode
 from django.utils.translation import ugettext as _
+from django.views.generic import FormView, ListView, TemplateView
 
 import qrcode
 from qrcode.image.svg import SvgPathImage

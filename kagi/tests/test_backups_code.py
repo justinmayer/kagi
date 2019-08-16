@@ -1,9 +1,10 @@
-import pytest
 from unittest import mock
 
-from django.core.management import call_command, CommandError
 from django.contrib.auth.models import User
+from django.core.management import CommandError, call_command
 from django.urls import reverse
+
+import pytest
 
 from ..models import BackupCode
 
