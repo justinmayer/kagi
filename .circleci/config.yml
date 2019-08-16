@@ -1,0 +1,36 @@
+version: 2.1
+jobs:
+  test:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+      - run: poetry config settings.virtualenvs.in-project true
+      - run:
+          command: poetry install
+      - save_cache:
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
+      - run:
+        command: |
+          poetry run pytest --cov=kagi --cov-report term-missing
+      - run:
+        command: |
+          poetry run black --check kagi testproj
+      - run:
+        command: |
+          poetry run isort -c --recursive .isort.cfg kagi/* testproj/*
+      - run:
+        command: |
+          poetry run flake8 kagi testproj
+
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - test
