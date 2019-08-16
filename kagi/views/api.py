@@ -87,10 +87,10 @@ def webauthn_verify_credential_info(request):
     # ceremony, or it MAY decide to accept the registration, e.g. while deleting
     # the older registration.
     credential_id_exists = WebAuthnKey.objects.filter(
-        credential_id=webauthn_credential.credential_id
+        credential_id=webauthn_credential.credential_id.decode("utf-8")
     ).first()
     if credential_id_exists:
-        return JsonResponse({"fail": "Credential ID already exists."}, status=401)
+        return JsonResponse({"fail": "Credential ID already exists."}, status=400)
 
     WebAuthnKey.objects.create(
         user=request.user,
@@ -105,7 +105,7 @@ def webauthn_verify_credential_info(request):
         del request.session["challenge"]
         del request.session["register_ukey"]
         del request.session["key_name"]
-    except KeyError:
+    except KeyError:  # pragma: no cover
         pass
 
     return JsonResponse({"success": "User successfully registered."})
@@ -114,11 +114,9 @@ def webauthn_verify_credential_info(request):
 # Login
 @require_http_methods(["POST"])
 def webauthn_begin_assertion(request):
+    # TODO: The challenge could be different for each key
     challenge = util.generate_challenge(32)
     request.session["challenge"] = challenge
-
-    ukey = util.generate_ukey()
-    request.session["register_ukey"] = ukey
 
     user = util.get_user(request)
 
@@ -130,7 +128,7 @@ def webauthn_begin_assertion(request):
     assertions = []
     for key in keys:
         webauthn_user = webauthn.WebAuthnUser(
-            ukey,
+            key.ukey,
             username,
             display_name,
             settings.WEBAUTHN_ICON_URL,
@@ -158,14 +156,13 @@ def webauthn_verify_assertion(request):
 
     username = user.get_username()
     display_name = user.get_full_name()
-    ukey = request.session["register_ukey"]
 
     key = WebAuthnKey.objects.filter(credential_id=credential_id, user=user).first()
     if not key:
-        return JsonResponse({"fail": "Key does not exist."}, status=401)
+        return JsonResponse({"fail": "Key does not exist."}, status=400)
 
     webauthn_user = webauthn.WebAuthnUser(
-        ukey,
+        key.ukey,
         username,
         display_name,
         settings.WEBAUTHN_ICON_URL,
@@ -194,10 +191,12 @@ def webauthn_verify_assertion(request):
     key.sign_count = sign_count
     key.save()
 
-    del request.session["kagi_pre_verify_user_pk"]
-    del request.session["kagi_pre_verify_user_backend"]
-    del request.session["challenge"]
-    del request.session["register_ukey"]
+    try:
+        del request.session["kagi_pre_verify_user_pk"]
+        del request.session["kagi_pre_verify_user_backend"]
+        del request.session["challenge"]
+    except KeyError:  # pragma: no cover
+        pass
 
     auth.login(request, user)
 

@@ -89,6 +89,10 @@ class OriginMixin(object):
         )
 
 
+class AddWebAuthnKeyView(OriginMixin, TemplateView):
+    template_name = "kagi/add_key.html"
+
+
 class VerifySecondFactorView(OriginMixin, TemplateView):
     template_name = "kagi/verify_second_factor.html"
 
@@ -307,6 +311,7 @@ class TOTPDeviceManagementView(ListView):
         return HttpResponseRedirect(reverse("kagi:totp-devices"))
 
 
+add_webauthn_key = AddWebAuthnKeyView.as_view()
 verify_second_factor = VerifySecondFactorView.as_view()
 login = KagiLoginView.as_view()
 keys = login_required(KeyManagementView.as_view())

@@ -13,6 +13,7 @@ urlpatterns = [
     ),
     url(r"^login/", views.login, name="login"),
     url(r"^keys/", views.keys, name="webauthn-keys"),
+    url(r"^add-webauthn-key/", views.add_webauthn_key, name="add-webauthn-key"),
     url(
         r"^two-factor-settings/", views.two_factor_settings, name="two-factor-settings"
     ),
