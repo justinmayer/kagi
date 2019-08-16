@@ -6,7 +6,6 @@ from .views import api
 app_name = 'u2f'
 
 urlpatterns = [
-    url(r'^add-key/', views.add_key, name='add-u2f-key'),
     url(r'^verify-second-factor/', views.verify_second_factor, name='verify-second-factor'),
     url(r'^login/', views.login, name='login'),
     url(r'^keys/', views.keys, name='u2f-keys'),

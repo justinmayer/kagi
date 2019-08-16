@@ -27,8 +27,6 @@ This is inspired by addstatictoken in django-otp, which is licensed as follows:
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from optparse import make_option
-
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
 
@@ -46,5 +44,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         user = get_user_model().objects.get_by_natural_key(options['username'])
-        backupcode_obj = user.backup_codes.create_backup_code(options['code'])
+        try:
+            backupcode_obj = user.backup_codes.create_backup_code(options['code'])
+        except Exception:
+            raise CommandError("This code already exists.")
         print(backupcode_obj.code, file=self.stdout)

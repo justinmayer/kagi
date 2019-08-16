@@ -11,25 +11,6 @@ from django.utils.crypto import get_random_string
 from .oath import totp, T
 
 
-class U2FKey(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='u2f_keys',
-                             on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    last_used_at = models.DateTimeField(null=True)
-
-    public_key = models.TextField(unique=True)
-    key_handle = models.TextField()
-    app_id = models.TextField()
-
-    def to_json(self):
-        return {
-            'publicKey': self.public_key,
-            'keyHandle': self.key_handle,
-            'appId': self.app_id,
-            'version': 'U2F_V2',
-        }
-
-
 class WebAuthnKey(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="webauthn_keys", on_delete=models.CASCADE
@@ -54,7 +35,7 @@ class BackupCodeManager(models.Manager):
                 with transaction.atomic():
                     code = get_random_string(length=6, allowed_chars=string.digits)
                     return self.create(code=code)
-            except IntegrityError as e:
+            except IntegrityError:
                 pass
 
 

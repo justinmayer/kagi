@@ -1,8 +1,6 @@
-import datetime
 import struct
 import hmac
 import hashlib
-import time
 
 
 def hotp(key, counter, digits=6):
@@ -36,17 +34,7 @@ def T(t, step=30):
     """
     The TOTP T value (number of time steps since the epoch)
     """
-    if hasattr(t, 'timestamp'):
-        timestamp = t.timestamp()
-    else:
-        # python 2
-        if t.tzinfo is None:
-            timestamp = time.mktime(t.timetuple())
-        else:
-            utc_naive  = t.replace(tzinfo=None) - t.utcoffset()
-            timestamp = (utc_naive - datetime.datetime(1970, 1, 1)).total_seconds()
-
-    return int(timestamp) // step
+    return int(t.timestamp()) // step
 
 
 def totp(key, t, digits=6, step=30):

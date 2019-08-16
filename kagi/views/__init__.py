@@ -21,9 +21,8 @@ from django.utils.translation import ugettext as _
 
 import qrcode
 from qrcode.image.svg import SvgPathImage
-from u2flib_server import u2f
 
-from ..forms import KeyResponseForm, BackupCodeForm, TOTPForm, RegisterKeyForm
+from ..forms import BackupCodeForm, TOTPForm
 from ..models import TOTPDevice
 
 
@@ -49,7 +48,7 @@ class U2FLoginView(LoginView):
             self.request.session['u2f_pre_verify_user_pk'] = user.pk
             self.request.session['u2f_pre_verify_user_backend'] = user.backend
 
-            verify_url = reverse('u2f:verify-second-factor')
+            verify_url = reverse('kagi:verify-second-factor')
             redirect_to = self.request.POST.get(auth.REDIRECT_FIELD_NAME,
                                                 self.request.GET.get(auth.REDIRECT_FIELD_NAME, ''))
             params = {}
@@ -81,52 +80,15 @@ class OriginMixin(object):
         )
 
 
-class AddKeyView(OriginMixin, FormView):
-    template_name = 'kagi/add_key.html'
-    form_class = RegisterKeyForm
-    success_url = reverse_lazy('u2f:u2f-keys')
-
-    def dispatch(self, request, *args, **kwargs):
-        return super(AddKeyView, self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        kwargs = super(AddKeyView, self).get_context_data(**kwargs)
-        request = u2f.begin_registration(self.get_origin(), [
-            key.to_json() for key in self.request.user.u2f_keys.all()
-        ])
-        self.request.session['u2f_registration_request'] = request
-        kwargs['registration_request'] = request
-
-        return kwargs
-
-    def form_valid(self, form):
-        response = form.cleaned_data['response']
-        request = self.request.session['u2f_registration_request']
-        del self.request.session['u2f_registration_request']
-        device, attestation_cert = u2f.complete_registration(request, response)
-        self.request.user.u2f_keys.create(
-            public_key=device['publicKey'],
-            key_handle=device['keyHandle'],
-            app_id=device['appId'],
-        )
-        messages.success(self.request, _("Key added."))
-        return super(AddKeyView, self).form_valid(form)
-
-    def get_success_url(self):
-        if 'next' in self.request.GET and is_safe_url(self.request.GET['next']):
-            return self.request.GET['next']
-        else:
-            return super(AddKeyView, self).get_success_url()
-
-
 class VerifySecondFactorView(OriginMixin, TemplateView):
     template_name = 'kagi/verify_second_factor.html'
 
     @property
     def form_classes(self):
         ret = {}
-        if self.user.u2f_keys.exists():
-            ret['u2f'] = KeyResponseForm
+        # XXX: Use the new form
+        # if self.user.u2f_keys.exists():
+        #    ret['u2f'] = KeyResponseForm
         if self.user.backup_codes.exists():
             ret['backup'] = BackupCodeForm
         if self.user.totp_devices.exists():
@@ -150,7 +112,7 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
         self.user = self.get_user()
         if self.user is None:
-            return HttpResponseRedirect(reverse('u2f:login'))
+            return HttpResponseRedirect(reverse('kagi:login'))
         return super(VerifySecondFactorView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -238,7 +200,7 @@ class KeyManagementView(ListView):
             messages.success(request, _("Key removed."))
         else:
             messages.success(request, _("Key removed. Two-factor auth disabled."))
-        return HttpResponseRedirect(reverse('u2f:u2f-keys'))
+        return HttpResponseRedirect(reverse('kagi:u2f-keys'))
 
 
 class BackupCodesView(ListView):
@@ -256,7 +218,7 @@ class BackupCodesView(ListView):
 class AddTOTPDeviceView(OriginMixin, FormView):
     form_class = TOTPForm
     template_name = 'kagi/totp_device.html'
-    success_url = reverse_lazy('u2f:two-factor-settings')
+    success_url = reverse_lazy('kagi:totp-devices')
 
     def gen_key(self):
         return os.urandom(20)
@@ -343,10 +305,9 @@ class TOTPDeviceManagementView(ListView):
         device = get_object_or_404(self.get_queryset(), pk=self.request.POST['device_id'])
         device.delete()
         messages.success(request, _("Device removed."))
-        return HttpResponseRedirect(reverse('u2f:totp-devices'))
+        return HttpResponseRedirect(reverse('kagi:totp-devices'))
 
 
-add_key = login_required(AddKeyView.as_view())
 verify_second_factor = VerifySecondFactorView.as_view()
 login = U2FLoginView.as_view()
 keys = login_required(KeyManagementView.as_view())
