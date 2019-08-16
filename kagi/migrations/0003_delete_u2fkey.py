@@ -5,12 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kagi', '0002_webauthnkey'),
-    ]
+    dependencies = [("kagi", "0002_webauthnkey")]
 
-    operations = [
-        migrations.DeleteModel(
-            name='U2FKey',
-        ),
-    ]
+    operations = [migrations.DeleteModel(name="U2FKey")]

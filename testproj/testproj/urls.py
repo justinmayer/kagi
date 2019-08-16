@@ -17,6 +17,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('kagi/', include('kagi.urls', namespace="kagi")),
-    path('admin/', admin.site.urls),
+    path("kagi/", include("kagi.urls", namespace="kagi")),
+    path("admin/", admin.site.urls),
 ]

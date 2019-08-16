@@ -8,8 +8,7 @@ all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON) pyproject.toml
 	$(VENV)/bin/pip install -U poetry
-	$(VENV)/bin/poetry install
-	$(VENV)/bin/poetry update
+	$(VENV)/bin/poetry install || $(VENV)/bin/poetry update
 	touch $(INSTALL_STAMP)
 
 virtualenv: $(PYTHON)

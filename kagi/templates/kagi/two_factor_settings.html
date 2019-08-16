@@ -5,16 +5,16 @@
 {{ block.super }}
 <h1>{% trans "Two Factor Settings" %}</h1>
 <ul>
-  <li><a href="{% url 'u2f:u2f-keys' %}">{% trans 'Manage U2F keys' %}</a></li>
-  <li><a href="{% url 'u2f:backup-codes' %}">{% trans 'Manage backup codes' %}</a></li>
-  <li><a href="{% url 'u2f:totp-devices' %}">{% trans 'Manage TOTP (Authenticator) devices' %}</a></li>
+  <li><a href="{% url 'kagi:webauthn-keys' %}">{% trans 'Manage WebAuthn keys' %}</a></li>
+  <li><a href="{% url 'kagi:backup-codes' %}">{% trans 'Manage backup codes' %}</a></li>
+  <li><a href="{% url 'kagi:totp-devices' %}">{% trans 'Manage TOTP (Authenticator) devices' %}</a></li>
 </ul>
 
 <h2>{% trans "Status" %}</h2>
 <ul>
-  <li>{% trans "U2F" %}: {% if u2f_enabled %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}</li>
-  <li>{% trans "TOTP" %}: {% if u2f_enabled %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}</li>
-  <li>{% trans "Backup codes remaining" %}: {{ backup_codes | length }}</li>
+  <li>{% trans "WebAuthn" %}: {% if webauthn_enabled %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}</li>
+  <li>{% trans "TOTP" %}: {% if totp_enabled %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}</li>
+  <li>{% trans "Backup codes remaining" %}: {{ backup_codes_count }}</li>
 </ul>
 
 {% endblock %}

@@ -40,23 +40,21 @@ class BackupCodeManager(models.Manager):
 
 
 class BackupCode(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             related_name='backup_codes',
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="backup_codes", on_delete=models.CASCADE
+    )
     code = models.CharField(max_length=8)
 
     class Meta:
-        unique_together = [
-            ('user', 'code')
-        ]
+        unique_together = [("user", "code")]
 
     objects = BackupCodeManager()
 
 
 class TOTPDevice(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             related_name='totp_devices',
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="totp_devices", on_delete=models.CASCADE
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     last_used_at = models.DateTimeField(null=True)
 
@@ -71,7 +69,7 @@ class TOTPDevice(models.Model):
         # the number of time intervals on either side to check
         slop = 1
 
-        times_to_check = [now + i * step for i in range(-slop, slop+1)]
+        times_to_check = [now + i * step for i in range(-slop, slop + 1)]
         # prevent using the same token twice
         if self.last_t is not None:
             times_to_check = [t for t in times_to_check if T(t) > self.last_t]

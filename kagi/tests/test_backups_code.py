@@ -49,9 +49,13 @@ def test_addbackupcode_command_refuse_to_create_twice_the_same_code():
 
 @pytest.mark.django_db
 def test_backup_code_manager_handles_code_duplication():
-    user = User.objects.create(username="admin", password="admin", email="john.doe@kagi.com")
+    user = User.objects.create(
+        username="admin", password="admin", email="john.doe@kagi.com"
+    )
     assert BackupCode.objects.count() == 0
-    with mock.patch("kagi.models.get_random_string", side_effect=["123456", "123456", "45678"]) as mocked:
+    with mock.patch(
+        "kagi.models.get_random_string", side_effect=["123456", "123456", "45678"]
+    ) as mocked:
         user.backup_codes.create_backup_code()
         user.backup_codes.create_backup_code()
 

@@ -16,6 +16,7 @@ from .. import util
 
 # Registration
 
+
 @login_required
 @require_http_methods(["POST"])
 def webauthn_begin_activate(request):
@@ -30,13 +31,18 @@ def webauthn_begin_activate(request):
     challenge = util.generate_challenge(32)
     ukey = util.generate_ukey()
 
-    request.session['key_name'] = form.cleaned_data["key_name"]
-    request.session['challenge'] = challenge
-    request.session['register_ukey'] = ukey
+    request.session["key_name"] = form.cleaned_data["key_name"]
+    request.session["challenge"] = challenge
+    request.session["register_ukey"] = ukey
 
     make_credential_options = webauthn.WebAuthnMakeCredentialOptions(
-        challenge, settings.RELYING_PARTY_NAME, settings.RELYING_PARTY_ID,
-        ukey, username, display_name, settings.WEBAUTHN_ICON_URL,
+        challenge,
+        settings.RELYING_PARTY_NAME,
+        settings.RELYING_PARTY_ID,
+        ukey,
+        username,
+        display_name,
+        settings.WEBAUTHN_ICON_URL,
     )
 
     return JsonResponse(make_credential_options.registration_dict)
@@ -46,8 +52,8 @@ def webauthn_begin_activate(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def webauthn_verify_credential_info(request):
-    challenge = request.session['challenge']
-    ukey = request.session['register_ukey']
+    challenge = request.session["challenge"]
+    ukey = request.session["register_ukey"]
 
     registration_response = request.POST
     trust_anchor_dir = settings.WEBAUTHN_TRUSTED_CERTIFICATES
@@ -64,13 +70,15 @@ def webauthn_verify_credential_info(request):
         trusted_attestation_cert_required,
         self_attestation_permitted,
         none_attestation_permitted,
-        uv_required=False  # User validation
+        uv_required=False,  # User validation
     )
 
     try:
         webauthn_credential = webauthn_registration_response.verify()
     except Exception as e:
-        return JsonResponse({'fail': 'Registration failed. Error: {}'.format(e)}, status=400)
+        return JsonResponse(
+            {"fail": "Registration failed. Error: {}".format(e)}, status=400
+        )
 
     # W3C spec. Step 17.
     #
@@ -80,42 +88,41 @@ def webauthn_verify_credential_info(request):
     # ceremony, or it MAY decide to accept the registration, e.g. while deleting
     # the older registration.
     credential_id_exists = WebAuthnKey.objects.filter(
-        credential_id=webauthn_credential.credential_id).first()
+        credential_id=webauthn_credential.credential_id
+    ).first()
     if credential_id_exists:
-        return JsonResponse({
-                'fail': 'Credential ID already exists.'
-            }, status=401)
+        return JsonResponse({"fail": "Credential ID already exists."}, status=401)
 
     WebAuthnKey.objects.create(
-        user = request.user,
-        key_name = request.session.get("key_name", ""),
+        user=request.user,
+        key_name=request.session.get("key_name", ""),
         ukey=ukey,
-        public_key=webauthn_credential.public_key.decode('utf-8'),
-        credential_id=webauthn_credential.credential_id.decode('utf-8'),
+        public_key=webauthn_credential.public_key.decode("utf-8"),
+        credential_id=webauthn_credential.credential_id.decode("utf-8"),
         sign_count=webauthn_credential.sign_count,
     )
 
     try:
-        del request.session['challenge']
-        del request.session['register_ukey']
-        del request.session['key_name']
+        del request.session["challenge"]
+        del request.session["register_ukey"]
+        del request.session["key_name"]
     except KeyError:
         pass
 
-    return JsonResponse({'success': 'User successfully registered.'})
+    return JsonResponse({"success": "User successfully registered."})
 
 
 # Login
 @require_http_methods(["POST"])
 def webauthn_begin_assertion(request):
     challenge = util.generate_challenge(32)
-    request.session['challenge'] = challenge
+    request.session["challenge"] = challenge
 
     ukey = util.generate_ukey()
-    request.session['register_ukey'] = ukey
+    request.session["register_ukey"] = ukey
 
     user = util.get_user(request)
-    
+
     username = user.get_username()
     display_name = user.get_full_name()
 
@@ -124,10 +131,18 @@ def webauthn_begin_assertion(request):
     assertions = []
     for key in keys:
         webauthn_user = webauthn.WebAuthnUser(
-            ukey, username, display_name, settings.WEBAUTHN_ICON_URL,
-            key.credential_id, key.public_key, key.sign_count, settings.RELYING_PARTY_ID
+            ukey,
+            username,
+            display_name,
+            settings.WEBAUTHN_ICON_URL,
+            key.credential_id,
+            key.public_key,
+            key.sign_count,
+            settings.RELYING_PARTY_ID,
         )
-        webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(webauthn_user, challenge)
+        webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(
+            webauthn_user, challenge
+        )
         assertions.append(webauthn_assertion_options.assertion_dict)
 
     return JsonResponse({"assertion_candidates": assertions})
@@ -136,23 +151,29 @@ def webauthn_begin_assertion(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def webauthn_verify_assertion(request):
-    challenge = request.session.get('challenge')
+    challenge = request.session.get("challenge")
     assertion_response = request.POST
-    credential_id = assertion_response.get('id')
-    
+    credential_id = assertion_response.get("id")
+
     user = util.get_user(request)
 
     username = user.get_username()
     display_name = user.get_full_name()
-    ukey = request.session['register_ukey']
-    
+    ukey = request.session["register_ukey"]
+
     key = WebAuthnKey.objects.filter(credential_id=credential_id, user=user).first()
     if not key:
-        return JsonResponse({'fail': 'Key does not exist.'}, status=401)
+        return JsonResponse({"fail": "Key does not exist."}, status=401)
 
     webauthn_user = webauthn.WebAuthnUser(
-        ukey, username, display_name, settings.WEBAUTHN_ICON_URL,
-        key.credential_id, key.public_key, key.sign_count, settings.RELYING_PARTY_ID
+        ukey,
+        username,
+        display_name,
+        settings.WEBAUTHN_ICON_URL,
+        key.credential_id,
+        key.public_key,
+        key.sign_count,
+        settings.RELYING_PARTY_ID,
     )
 
     webauthn_assertion_response = webauthn.WebAuthnAssertionResponse(
@@ -160,32 +181,36 @@ def webauthn_verify_assertion(request):
         assertion_response,
         challenge,
         util.get_origin(request),
-        uv_required=False  # User Verification
+        uv_required=False,  # User Verification
     )
 
     try:
         sign_count = webauthn_assertion_response.verify()
     except Exception as e:
-        return JsonResponse({'fail': 'Assertion failed. Error: {}'.format(e)}, status=400)
+        return JsonResponse(
+            {"fail": "Assertion failed. Error: {}".format(e)}, status=400
+        )
 
     # Update counter.
     key.sign_count = sign_count
     key.save()
 
-    del request.session['u2f_pre_verify_user_pk']
-    del request.session['u2f_pre_verify_user_backend']
-    del request.session['challenge']
-    del request.session['register_ukey']
+    del request.session["kagi_pre_verify_user_pk"]
+    del request.session["kagi_pre_verify_user_backend"]
+    del request.session["challenge"]
+    del request.session["register_ukey"]
 
     auth.login(request, user)
 
-    redirect_to = request.POST.get(auth.REDIRECT_FIELD_NAME,
-                                   request.GET.get(auth.REDIRECT_FIELD_NAME, ''))
+    redirect_to = request.POST.get(
+        auth.REDIRECT_FIELD_NAME, request.GET.get(auth.REDIRECT_FIELD_NAME, "")
+    )
     if not is_safe_url(url=redirect_to, allowed_hosts=[request.get_host()]):
         redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
 
-    return JsonResponse({
-        'success':
-        'Successfully authenticated as {}'.format(user.username),
-        'redirect_to': redirect_to,
-    })
+    return JsonResponse(
+        {
+            "success": "Successfully authenticated as {}".format(user.username),
+            "redirect_to": redirect_to,
+        }
+    )

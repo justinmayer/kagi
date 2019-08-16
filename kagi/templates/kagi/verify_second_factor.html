@@ -10,6 +10,7 @@
 </p>
 
 
+{% if forms.webauthn %}
 <form id="login-form">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ next }}" />
@@ -17,7 +18,7 @@
         {% trans "Tap here to log in with your WebAuthn key." %}
     </button>
 </form>
-
+{% endif %}
 
 {% if forms.totp %}
 <div class="method totp">

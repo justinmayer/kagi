@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 """
 This is inspired by addstatictoken in django-otp, which is licensed as follows:
 
@@ -32,20 +33,20 @@ from django.contrib.auth import get_user_model
 
 
 class Command(BaseCommand):
-    help = 'Adds a single backup code to the given user.'
+    help = "Adds a single backup code to the given user."
 
     def add_arguments(self, parser):
-        parser.add_argument('username')
+        parser.add_argument("username")
         parser.add_argument(
-            '--code',
+            "--code",
             default=None,
             help="The code to add. If omitted, one will be randomly generated.",
         )
 
     def handle(self, *args, **options):
-        user = get_user_model().objects.get_by_natural_key(options['username'])
+        user = get_user_model().objects.get_by_natural_key(options["username"])
         try:
-            backupcode_obj = user.backup_codes.create_backup_code(options['code'])
+            backupcode_obj = user.backup_codes.create_backup_code(options["code"])
         except Exception:
             raise CommandError("This code already exists.")
         print(backupcode_obj.code, file=self.stdout)

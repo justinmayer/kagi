@@ -23,11 +23,11 @@ def hotp(key, counter, digits=6):
     '520489'
     """
 
-    msg = struct.pack('>Q', counter)
+    msg = struct.pack(">Q", counter)
     hs = hmac.new(key, msg, hashlib.sha1).digest()
-    offset = hs[19] & 0x0f
-    val = struct.unpack('>L', hs[offset:offset + 4])[0] & 0x7fffffff
-    return '{val:0{digits}d}'.format(val=val % 10 ** digits, digits=digits)
+    offset = hs[19] & 0x0F
+    val = struct.unpack(">L", hs[offset : offset + 4])[0] & 0x7FFFFFFF
+    return "{val:0{digits}d}".format(val=val % 10 ** digits, digits=digits)
 
 
 def T(t, step=30):

@@ -3,7 +3,6 @@
 {% load i18n %}
 
 {% block content %}
-<script src="{% static 'kagi/u2f-api.js' %}"></script>
 <script src="{% static 'kagi/base64js.min.js' %}"></script>
 <script>
     window.Kagi = window.Kagi || {};
@@ -11,13 +10,16 @@
     Kagi.begin_assertion = '{% url 'kagi:begin-assertion' %}';
     Kagi.verify_credential_info = '{% url 'kagi:verify-credential-info' %}';
     Kagi.verify_assertion = '{% url 'kagi:verify-assertion' %}';
-    Kagi.keys_list = '{% url 'kagi:u2f-keys' %}';
+    Kagi.keys_list = '{% url 'kagi:webauthn-keys' %}';
 </script>
 {{ block.super }}
 
-<div id="u2f-not-defined-error" style="display: none">
+{% comment %}
+TODO: Handle browser not supporting navigator.credentials API.
+{% endcomment %}
+<div id="kagi-not-defined-error" style="display: none">
     {% blocktrans %}
-    You must be using a compatible browser to use a U2F security key.
+    You must be using a compatible browser to use a WebAuthn security key.
     The following browsers are known to be compatible
     {% endblocktrans %}
     <ul>
