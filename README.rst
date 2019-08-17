@@ -1,8 +1,8 @@
 Kagi
 ----
 
-.. image:: https://circleci.com/gh/justinmayer/kagi/tree/dev.svg?style=svg
-    :target: https://circleci.com/gh/justinmayer/kagi/tree/dev
+.. image:: https://circleci.com/gh/justinmayer/kagi.svg?style=svg
+    :target: https://circleci.com/gh/justinmayer/kagi
 
 kagi provides support for FIDO WebAuthn security tokens in Django.
 
