@@ -126,3 +126,6 @@ WEBAUTHN_ICON_URL = "http://www.trunat.fr/fichiers/avatars/avatar.png"
 WEBAUTHN_TRUSTED_CERTIFICATES = os.path.join(
     BASE_DIR, "..", "trusted_attestation_roots"
 )
+WEBAUTHN_TRUSTED_ATTESTATION_CERT_REQUIRED = True
+WEBAUTHN_SELF_ATTESTATION_PERMITTED = False
+WEBAUTHN_NONE_ATTESTATION_PERMITTED = False

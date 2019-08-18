@@ -6,6 +6,7 @@ from django.urls import reverse
 
 import pytest
 
+from ..forms import KeyRegistrationForm
 from ..models import WebAuthnKey
 
 
@@ -13,6 +14,12 @@ def test_list_webauthn_keys(admin_client):
     response = admin_client.get(reverse("kagi:webauthn-keys"))
     assert list(response.context_data["webauthnkey_list"]) == []
     assert response.status_code == 200
+
+
+def test_add_webauthn_key(admin_client):
+    response = admin_client.get(reverse("kagi:add-webauthn-key"))
+    assert response.status_code == 200
+    assert isinstance(response.context_data["form"], KeyRegistrationForm)
 
 
 def test_totp_device_deletion_works(admin_client):
@@ -70,9 +77,11 @@ def test_webauthn_verify_credential_info(admin_client):
     credential_options = response.json()
     challenge = credential_options["challenge"]
 
-    trusted_attestation_cert_required = True
-    self_attestation_permitted = True
-    none_attestation_permitted = True
+    trusted_attestation_cert_required = (
+        settings.WEBAUTHN_TRUSTED_ATTESTATION_CERT_REQUIRED
+    )
+    self_attestation_permitted = settings.WEBAUTHN_SELF_ATTESTATION_PERMITTED
+    none_attestation_permitted = settings.WEBAUTHN_NONE_ATTESTATION_PERMITTED
 
     with mock.patch("kagi.views.api.webauthn") as mocked_webauthn:
         webauthn_registration_response = (

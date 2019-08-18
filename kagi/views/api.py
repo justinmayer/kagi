@@ -9,8 +9,8 @@ from django.views.decorators.http import require_http_methods
 
 import webauthn
 
-from .. import settings, util
-from ..forms import RegisterKeyForm
+from .. import util
+from ..forms import KeyRegistrationForm
 from ..models import WebAuthnKey
 
 # Registration
@@ -19,7 +19,7 @@ from ..models import WebAuthnKey
 @login_required
 @require_http_methods(["POST"])
 def webauthn_begin_activate(request):
-    form = RegisterKeyForm(request.POST)
+    form = KeyRegistrationForm(request.POST)
 
     if not form.is_valid():
         return JsonResponse({"errors": form.errors}, status=400)
@@ -56,9 +56,11 @@ def webauthn_verify_credential_info(request):
 
     registration_response = request.POST
     trust_anchor_dir = settings.WEBAUTHN_TRUSTED_CERTIFICATES
-    trusted_attestation_cert_required = True
-    self_attestation_permitted = True
-    none_attestation_permitted = True
+    trusted_attestation_cert_required = (
+        settings.WEBAUTHN_TRUSTED_ATTESTATION_CERT_REQUIRED
+    )
+    self_attestation_permitted = settings.WEBAUTHN_SELF_ATTESTATION_PERMITTED
+    none_attestation_permitted = settings.WEBAUTHN_NONE_ATTESTATION_PERMITTED
 
     webauthn_registration_response = webauthn.WebAuthnRegistrationResponse(
         settings.RELYING_PARTY_ID,

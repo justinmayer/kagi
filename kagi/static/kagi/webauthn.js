@@ -36,7 +36,7 @@ if (typeof window.Kagi === 'undefined') {
     keys_list: '/kagi/keys/',
   };
   console.error("window.Kagi is not defined, falling back to default URLs", Kagi);
-  
+
 }
 
 
@@ -46,7 +46,7 @@ if (typeof window.Kagi === 'undefined') {
 
 /**
  * Callback after the registration form is submitted.
- * @param {Event} e 
+ * @param {Event} e
  */
 const didClickRegister = async (e) => {
     e.preventDefault();
@@ -66,7 +66,7 @@ const didClickRegister = async (e) => {
     // convert certain members of the PublicKeyCredentialCreateOptions into
     // byte arrays as expected by the spec.
     const publicKeyCredentialCreateOptions = transformCredentialCreateOptions(credentialCreateOptionsFromServer);
-    
+
     // request the authenticator(s) to create a new credential keypair.
     let credential;
     try {
@@ -89,7 +89,7 @@ const didClickRegister = async (e) => {
     } catch (err) {
         return console.error("Server validation of credential failed:", err);
     }
-    
+
     // reload the page after a successful result
     window.location.href = Kagi.keys_list;
 }
@@ -97,7 +97,7 @@ const didClickRegister = async (e) => {
 /**
  * Get PublicKeyCredentialRequestOptions for this user from the server
  * formData of the registration form
- * @param {FormData} formData 
+ * @param {FormData} formData
  */
 const getCredentialRequestOptionsFromServer = async (formData) => {
     return await fetch_json(
@@ -126,7 +126,7 @@ const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) =
     {},
     credentialRequestOptionsFromServer,
     {challenge, allowCredentials});
-  
+
   return transformedCredentialRequestOptions;
 };
 
@@ -134,7 +134,7 @@ const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) =
 /**
  * Get PublicKeyCredentialRequestOptions for this user from the server
  * formData of the registration form
- * @param {FormData} formData 
+ * @param {FormData} formData
  */
 const getCredentialCreateOptionsFromServer = async (formData) => {
     return await fetch_json(
@@ -149,7 +149,7 @@ const getCredentialCreateOptionsFromServer = async (formData) => {
 /**
  * Transforms items in the credentialCreateOptions generated on the server
  * into byte arrays expected by the navigator.credentials.create() call
- * @param {Object} credentialCreateOptionsFromServer 
+ * @param {Object} credentialCreateOptionsFromServer
  */
 const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => {
     let {challenge, user} = credentialCreateOptionsFromServer;
@@ -158,7 +158,7 @@ const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => 
 
     challenge = Uint8Array.from(
         atob(credentialCreateOptionsFromServer.challenge), c => c.charCodeAt(0));
-    
+
     const transformedCredentialCreateOptions = Object.assign(
             {}, credentialCreateOptionsFromServer,
             {challenge, user});
@@ -175,7 +175,7 @@ const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => 
 
 /**
  * Callback executed after submitting login form
- * @param {Event} e 
+ * @param {Event} e
  */
 const didClickLogin = async (e) => {
   console.log("Login clicked");
@@ -193,7 +193,7 @@ const didClickLogin = async (e) => {
     }
 
     // convert certain members of the PublicKeyCredentialRequestOptions into
-    // byte arrays as expected by the spec.    
+    // byte arrays as expected by the spec.
     const transformedCredentialRequestOptions = transformCredentialRequestOptions(
         credentialRequestOptionsFromServer);
 
@@ -225,7 +225,7 @@ const didClickLogin = async (e) => {
 /**
  * Transforms the binary data in the credential into base64 strings
  * for posting to the server.
- * @param {PublicKeyCredential} newAssertion 
+ * @param {PublicKeyCredential} newAssertion
  */
 const transformNewAssertionForServer = (newAssertion) => {
     const attObj = new Uint8Array(
@@ -234,7 +234,7 @@ const transformNewAssertionForServer = (newAssertion) => {
         newAssertion.response.clientDataJSON);
     const rawId = new Uint8Array(
         newAssertion.rawId);
-    
+
     const registrationClientExtensions = newAssertion.getClientExtensionResults();
 
     return {
@@ -249,14 +249,14 @@ const transformNewAssertionForServer = (newAssertion) => {
 
 /**
  * Posts the new credential data to the server for validation and storage.
- * @param {Object} credentialDataForServer 
+ * @param {Object} credentialDataForServer
  */
 const postNewAssertionToServer = async (credentialDataForServer) => {
     const formData = new FormData();
     Object.entries(credentialDataForServer).forEach(([key, value]) => {
         formData.set(key, value);
     });
-    
+
     return await fetch_json(
         Kagi.verify_credential_info, {
         method: "POST",
@@ -266,7 +266,7 @@ const postNewAssertionToServer = async (credentialDataForServer) => {
 
 /**
  * Encodes the binary data in the assertion into strings for posting to the server.
- * @param {PublicKeyCredential} newAssertion 
+ * @param {PublicKeyCredential} newAssertion
  */
 const transformAssertionForServer = (newAssertion) => {
     const authData = new Uint8Array(newAssertion.response.authenticatorData);
@@ -287,8 +287,8 @@ const transformAssertionForServer = (newAssertion) => {
 };
 
 /**
- * Post the assertion to the server for validation and logging the user in. 
- * @param {Object} assertionDataForServer 
+ * Post the assertion to the server for validation and logging the user in.
+ * @param {Object} assertionDataForServer
  */
 const postAssertionToServer = async (assertionDataForServer) => {
     const form = document.querySelector('#login-form');
@@ -296,7 +296,7 @@ const postAssertionToServer = async (assertionDataForServer) => {
     Object.entries(assertionDataForServer).forEach(([key, value]) => {
         formData.set(key, value);
     });
-    
+
     return await fetch_json(
         Kagi.verify_assertion, {
         method: "POST",

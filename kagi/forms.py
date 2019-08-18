@@ -49,9 +49,5 @@ class TOTPForm(SecondFactorForm):
         return False
 
 
-# New things below
-
-
-class RegisterKeyForm(forms.Form):
-    # TODO: Rename me in KeyRegistrationForm eventually?
+class KeyRegistrationForm(forms.Form):
     key_name = forms.CharField(label=_("Key name"))
