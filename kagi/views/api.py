@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 
 import webauthn
 
-from .. import util
+from .. import settings, util
 from ..forms import RegisterKeyForm
 from ..models import WebAuthnKey
 
@@ -204,7 +204,7 @@ def webauthn_verify_assertion(request):
         auth.REDIRECT_FIELD_NAME, request.GET.get(auth.REDIRECT_FIELD_NAME, "")
     )
     if not is_safe_url(url=redirect_to, allowed_hosts=[request.get_host()]):
-        redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
+        redirect_to = resolve_url(django_settings.LOGIN_REDIRECT_URL)
 
     return JsonResponse(
         {
