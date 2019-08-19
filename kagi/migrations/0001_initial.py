@@ -13,33 +13,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="U2FKey",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("last_used_at", models.DateTimeField(null=True)),
-                ("public_key", models.TextField(unique=True)),
-                ("key_handle", models.TextField()),
-                ("app_id", models.TextField()),
-                (
-                    "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="u2f_keys",
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-            ],
-        ),
-        migrations.CreateModel(
             name="TOTPDevice",
             fields=[
                 (
@@ -88,5 +61,34 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={"unique_together": {("user", "code")}},
+        ),
+        migrations.CreateModel(
+            name="WebAuthnKey",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_used_at", models.DateTimeField(null=True)),
+                ("key_name", models.CharField(max_length=64)),
+                ("public_key", models.TextField(unique=True)),
+                ("ukey", models.TextField(unique=True)),
+                ("credential_id", models.TextField(unique=True)),
+                ("sign_count", models.IntegerField()),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="webauthn_keys",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+            ],
         ),
     ]
