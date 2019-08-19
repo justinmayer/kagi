@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 
 import webauthn
 
-from .. import util
+from .. import settings, util
 from ..forms import KeyRegistrationForm
 from ..models import WebAuthnKey
 

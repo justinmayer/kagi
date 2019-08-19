@@ -1,11 +1,11 @@
 from unittest import mock
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 
 import pytest
 
+from .. import settings
 from ..forms import KeyRegistrationForm
 from ..models import WebAuthnKey
 
