@@ -5,11 +5,17 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView, TemplateView
 
+from ..forms import KeyRegistrationForm
 from .mixin import OriginMixin
 
 
 class AddWebAuthnKeyView(OriginMixin, TemplateView):
     template_name = "kagi/add_key.html"
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        kwargs["form"] = KeyRegistrationForm()
+        return kwargs
 
 
 class KeyManagementView(ListView):
