@@ -179,6 +179,7 @@ const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => 
  */
 const didClickLogin = async (e) => {
   console.log("Login clicked");
+  document.getElementById("webauthn-error").innerHTML = "";
     e.preventDefault();
     // gather the data in the form
     const form = document.querySelector('#login-form');
@@ -205,6 +206,7 @@ const didClickLogin = async (e) => {
             publicKey: transformedCredentialRequestOptions,
         });
     } catch (err) {
+        document.getElementById("webauthn-error").innerHTML = "Connection failed during credential creation.";
         return console.error("Error when creating credential:", err);
     }
     // we now have an authentication assertion! encode the byte arrays contained
@@ -216,6 +218,7 @@ const didClickLogin = async (e) => {
     try {
         response = await postAssertionToServer(transformedAssertionForServer);
     } catch (err) {
+        document.getElementById("webauthn-error").innerHTML = "Error when validating assertion on server.";
         return console.error("Error when validating assertion on server:", err);
     }
 
