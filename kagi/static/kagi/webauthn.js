@@ -110,10 +110,8 @@ const getCredentialRequestOptionsFromServer = async (formData) => {
 }
 
 const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) => {
-  let {challenge, allowCredentials} = credentialRequestOptionsFromServer["assertion_candidates"][0];
-
-  challenge = Uint8Array.from(
-    atob(challenge), c => c.charCodeAt(0));
+  let {challenge, allowCredentials} = credentialRequestOptionsFromServer;
+  challenge = Uint8Array.from(atob(challenge), c => c.charCodeAt(0));
 
   allowCredentials = allowCredentials.map(credentialDescriptor => {
     let {id} = credentialDescriptor;
