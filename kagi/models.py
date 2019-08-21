@@ -15,13 +15,16 @@ class WebAuthnKey(models.Model):
         settings.AUTH_USER_MODEL, related_name="webauthn_keys", on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    last_used_at = models.DateTimeField(null=True)
+    last_used_at = models.DateTimeField(blank=True, null=True)
 
     key_name = models.CharField(max_length=64)
     public_key = models.TextField(unique=True)
     ukey = models.TextField(unique=True)
     credential_id = models.TextField(unique=True)
     sign_count = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.user} - {self.key_name}"
 
 
 class BackupCodeManager(models.Manager):

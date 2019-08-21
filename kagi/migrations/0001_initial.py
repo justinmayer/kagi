@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("last_used_at", models.DateTimeField(null=True)),
+                ("last_used_at", models.DateTimeField(blank=True, null=True)),
                 ("key_name", models.CharField(max_length=64)),
                 ("public_key", models.TextField(unique=True)),
                 ("ukey", models.TextField(unique=True)),

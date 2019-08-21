@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import resolve_url
 from django.utils.http import is_safe_url
+from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -116,7 +117,6 @@ def webauthn_verify_credential_info(request):
 # Login
 @require_http_methods(["POST"])
 def webauthn_begin_assertion(request):
-    # TODO: The challenge could be different for each key
     challenge = util.generate_challenge(32)
     request.session["challenge"] = challenge
 
@@ -127,24 +127,26 @@ def webauthn_begin_assertion(request):
 
     keys = WebAuthnKey.objects.filter(user=user)
 
-    assertions = []
+    webauthn_users = []
     for key in keys:
-        webauthn_user = webauthn.WebAuthnUser(
-            key.ukey,
-            username,
-            display_name,
-            settings.WEBAUTHN_ICON_URL,
-            key.credential_id,
-            key.public_key,
-            key.sign_count,
-            settings.RELYING_PARTY_ID,
+        webauthn_users.append(
+            webauthn.WebAuthnUser(
+                key.ukey,
+                username,
+                display_name,
+                settings.WEBAUTHN_ICON_URL,
+                key.credential_id,
+                key.public_key,
+                key.sign_count,
+                settings.RELYING_PARTY_ID,
+            )
         )
-        webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(
-            webauthn_user, challenge
-        )
-        assertions.append(webauthn_assertion_options.assertion_dict)
 
-    return JsonResponse({"assertion_candidates": assertions})
+    webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(
+        webauthn_users, challenge
+    )
+
+    return JsonResponse(webauthn_assertion_options.assertion_dict)
 
 
 @csrf_exempt
@@ -191,6 +193,7 @@ def webauthn_verify_assertion(request):
 
     # Update counter.
     key.sign_count = sign_count
+    key.last_used = now()
     key.save()
 
     try:
