@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kagi', '0001_initial'),
-    ]
+    dependencies = [("kagi", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='webauthnkey',
-            name='last_used_at',
+            model_name="webauthnkey",
+            name="last_used_at",
             field=models.DateTimeField(blank=True, null=True),
-        ),
+        )
     ]
