@@ -9,20 +9,14 @@ jobs:
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
       - run: poetry config settings.virtualenvs.in-project true
       - run:
-          command: poetry install
+          command: |
+            poetry run make install
       - run:
           command: |
-            poetry run pytest --cov=kagi --cov-report term-missing
+            poetry run make tests
       - run:
           command: |
-            poetry run black --check kagi testproj
-      - run:
-          command: |
-            poetry run isort -c --recursive .isort.cfg kagi/* testproj/*
-      - run:
-          command: |
-            poetry run flake8 kagi testproj
-
+            poetry run make lint
 
 workflows:
   version: 2
