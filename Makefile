@@ -2,15 +2,33 @@ VIRTUALENV = virtualenv --python=python3
 VENV := $(shell echo $${VIRTUAL_ENV-.venv} | xargs realpath)
 PYTHON = $(VENV)/bin/python
 INSTALL_STAMP = $(VENV)/.install.stamp
-
+POETRY := $(shell which poetry)
+PRECOMMIT := $(shell which pre-commit)
+PRECOMMIT_HOOK := .git/hooks/pre-commit
 
 all: install
-install: $(INSTALL_STAMP)
-$(INSTALL_STAMP): $(PYTHON) pyproject.toml
+install: $(INSTALL_STAMP) $(PRECOMMIT_HOOK)
+$(INSTALL_STAMP): $(PYTHON) poetry pyproject.toml
 	$(VENV)/bin/pip install -U pip
-	$(VENV)/bin/pip install -U poetry
 	$(VENV)/bin/poetry install || $(VENV)/bin/poetry update
 	touch $(INSTALL_STAMP)
+
+poetry:
+ifdef POETRY
+	ln -s $(POETRY) $(VENV)/bin/poetry
+else
+	$(VENV)/bin/pip install poetry
+endif
+
+pre-commit:
+ifdef PRECOMMIT
+	ln -s $(PRECOMMIT) $(VENV)/bin/pre-commit
+else
+	$(VENV)/bin/pip install pre-commit
+endif
+
+$(PRECOMMIT_HOOK): pre-commit
+	$(VENV)/bin/pre-commit install
 
 virtualenv: $(PYTHON)
 $(PYTHON):
