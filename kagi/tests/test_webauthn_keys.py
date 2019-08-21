@@ -16,6 +16,12 @@ def test_list_webauthn_keys(admin_client):
     assert response.status_code == 200
 
 
+def test_webauthn_keys_str_return_the_username(admin_client):
+    user = User.objects.get(pk=1)
+    key = user.webauthn_keys.create(key_name="SoloKey", sign_count=0)
+    assert str(key) == "admin - SoloKey"
+
+
 def test_add_webauthn_key(admin_client):
     response = admin_client.get(reverse("kagi:add-webauthn-key"))
     assert response.status_code == 200
@@ -198,14 +204,30 @@ def test_begin_assertion_return_user_credential_options(client):
     assert response.url == reverse("kagi:verify-second-factor")
 
     with mock.patch("kagi.views.api.webauthn") as mocked_webauthn:
-        mocked_webauthn.WebAuthnAssertionOptions.side_effect = [
-            mock.MagicMock(assertion_dict="solo-key-1"),
-            mock.MagicMock(assertion_dict="solo-key-2"),
-        ]
+        assertion_dict = {
+            "challenge": "tOOk7MPjGWlezrP6o6tGOXSH0ZesUREO",
+            "allowCredentials": [
+                {
+                    "type": "public-key",
+                    "id": "ePqP9Mi...512GSYg",
+                    "transports": ["usb", "nfc", "ble", "internal"],
+                },
+                {
+                    "type": "public-key",
+                    "id": "qhibXokRKbPA...O1WW7nF",
+                    "transports": ["usb", "nfc", "ble", "internal"],
+                },
+            ],
+            "rpId": "localhost",
+            "timeout": 60000,
+        }
+        mocked_webauthn.WebAuthnAssertionOptions.return_value.assertion_dict = (
+            assertion_dict
+        )
         response = client.post(reverse("kagi:begin-assertion"))
 
     assert response.status_code == 200
-    assert response.json() == {"assertion_candidates": ["solo-key-1", "solo-key-2"]}
+    assert response.json() == assertion_dict
 
 
 # Testing view verify assertion
