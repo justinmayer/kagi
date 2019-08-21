@@ -13,17 +13,23 @@ $(INSTALL_STAMP): $(PYTHON) poetry pyproject.toml
 	$(VENV)/bin/poetry install || $(VENV)/bin/poetry update
 	touch $(INSTALL_STAMP)
 
+# Look for poetry in the path
 poetry:
 ifdef POETRY
+# Use the globaly installed one if existing
 	ln -s $(POETRY) $(VENV)/bin/poetry
 else
+# Install it in the virtualenv if missing
 	$(VENV)/bin/pip install poetry
 endif
 
+# Look for pre-commit in the path
 pre-commit:
 ifdef PRECOMMIT
+# Use the globaly installed one if existing
 	ln -s $(PRECOMMIT) $(VENV)/bin/pre-commit
 else
+# Install it in the virtualenv if missing
 	$(VENV)/bin/pip install pre-commit
 endif
 
