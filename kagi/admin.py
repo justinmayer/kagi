@@ -1,7 +1,10 @@
+from django.contrib import admin
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import ugettext as _
+
+from .models import WebAuthnKey
 
 
 def make_login_view(view_class):
@@ -52,3 +55,8 @@ def monkeypatch_admin(view_class=None):
     from django.contrib.admin.sites import AdminSite
 
     AdminSite.login = make_login_view(view_class)
+
+
+@admin.register(WebAuthnKey)
+class WebAuthnKeyAdmin(admin.ModelAdmin):
+    pass

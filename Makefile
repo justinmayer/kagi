@@ -24,6 +24,9 @@ serve: $(INSTALL_STAMP)
 tests: $(INSTALL_STAMP)
 	$(VENV)/bin/pytest -s --doctest-modules --cov-report term-missing --cov-fail-under 100 --cov kagi
 
+makemigrations:
+	cd testproj; $(PYTHON) manage.py makemigrations
+
 migrate:
 	cd testproj; $(PYTHON) manage.py migrate
 
