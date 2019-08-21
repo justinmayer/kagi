@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import resolve_url
 from django.utils.http import is_safe_url
+from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -191,6 +192,7 @@ def webauthn_verify_assertion(request):
 
     # Update counter.
     key.sign_count = sign_count
+    key.last_used = now()
     key.save()
 
     try:
