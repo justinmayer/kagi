@@ -2,33 +2,30 @@ VIRTUALENV = virtualenv --python=python3
 VENV := $(shell echo $${VIRTUAL_ENV-.venv} | xargs realpath)
 PYTHON = $(VENV)/bin/python
 INSTALL_STAMP = $(VENV)/.install.stamp
-POETRY := $(shell which poetry)
-PRECOMMIT := $(shell which pre-commit)
+POETRY := $(shell which poetry .venv/bin/poetry)
+PRECOMMIT := $(shell which pre-commit .venv/bin/pre-commit)
 PRECOMMIT_HOOK := .git/hooks/pre-commit
 
 all: install
 install: $(INSTALL_STAMP) $(PRECOMMIT_HOOK)
-$(INSTALL_STAMP): $(PYTHON) poetry pyproject.toml
+$(INSTALL_STAMP): $(PYTHON) pyproject.toml
 	$(VENV)/bin/pip install -U pip
-	POETRY=$$(which poetry .venv/bin/poetry); $$POETRY install || $$POETRY update
+	POETRY=$$(which "poetry" ".venv/bin/poetry" | head -n1); $$POETRY install || $$POETRY update
 	touch $(INSTALL_STAMP)
 
 # Look for poetry in the path
 poetry:
 ifndef POETRY
-# Install it in the virtualenv if missing
+# Install poetry in the virtualenv only if missing
 	$(VENV)/bin/pip install poetry
 endif
 
-# Look for pre-commit in the path
-pre-commit:
+$(PRECOMMIT_HOOK):
 ifndef PRECOMMIT
-# Install it in the virtualenv if missing
+# Install pre-commit in the virtualenv only if missing
 	$(VENV)/bin/pip install pre-commit
 endif
-
-$(PRECOMMIT_HOOK): pre-commit
-	$$(which pre-commit .venv/bin/pre-commit) install
+	$$(which "pre-commit" ".venv/bin/pre-commit" | head -n1) install
 
 virtualenv: $(PYTHON)
 $(PYTHON):
