@@ -43,4 +43,8 @@ html_show_sourcelink = False
 
 # -- Extension Configuration -------------------------------------------------
 
-extlinks = {"issue": ("https://github.com/justinmayer/kagi/issues/%s", "issue ")}
+extlinks = {
+    "issue": ("https://github.com/justinmayer/kagi/issues/%s", "issue "),
+    "github": ("https://github.com/%s/", ""),
+    "rtd": ("https://%s.readthedocs.io", ""),
+}
