@@ -6,42 +6,44 @@ from invoke import task
 from invoke.util import cd
 
 TOOLS = ["poetry", "pre-commit"]
-PORT = os.environ.get("SERVER_PORT", 8000)
+DEMO_PORT = os.environ.get("DEMO_PORT", 8000)
+DOCS_PORT = os.environ.get("DOCS_PORT", 8000)
 
 ACTIVE_VENV = os.environ.get("VIRTUAL_ENV", None)
 VENV_HOME = Path(os.environ.get("WORKON_HOME", "~/.local/share/virtualenvs"))
 VENV_PATH = Path(ACTIVE_VENV) if ACTIVE_VENV else (VENV_HOME / "kagi")
 VENV = str(VENV_PATH.expanduser())
 
-PRECOMMIT = which("pre-commit") if which("pre-commit") else (VENV / "pre-commit")
-POETRY = which("poetry") if which("poetry") else (VENV / "poetry")
+POETRY = which("poetry") if which("poetry") else (VENV / "bin" / "poetry")
+PRECOMMIT = (
+    which("pre-commit") if which("pre-commit") else (VENV / "bin" / "pre-commit")
+)
 
 
 @task
-def build(c, docs=True):
+def docs(c):
     """Build documentation"""
-    if docs:
-        c.run(f"{VENV}/bin/sphinx-build docs docs/_build")
+    c.run(f"{VENV}/bin/sphinx-build docs docs/_build")
 
 
-@task(build)
-def livedocs(c):
-    """Serve docs at http://localhost:$PORT/ (default port is 8000)"""
+@task(docs)
+def viewdocs(c):
+    """Serve docs at http://localhost:$DOCS_PORT/ (default port is 8000)"""
     from livereload import Server
 
     server = Server()
-    server.watch("docs/conf.py", lambda: build(c))
-    server.watch("CONTRIBUTING.rst", lambda: build(c))
-    server.watch("docs/*.rst", lambda: build(c))
-    server.serve(port=PORT, root="docs/_build")
+    server.watch("docs/conf.py", lambda: docs(c))
+    server.watch("CONTRIBUTING.rst", lambda: docs(c))
+    server.watch("docs/*.rst", lambda: docs(c))
+    server.serve(port=DOCS_PORT, root="docs/_build")
 
 
 @task
 def serve(c):
-    """Serve site at https://localhost:$PORT/ (default port is 8000)"""
+    """Serve demo site at https://localhost:$DEMO_PORT/ (default port is 8000)"""
     with cd("testproj"):
         c.run(
-            f"{VENV}/bin/python manage.py runserver_plus "
+            f"{VENV}/bin/python manage.py runserver_plus {DEMO_PORT} "
             f"--cert-file {VENV}/localhost.crt "
             f"--key-file {VENV}/localhost.key",
             pty=True,
@@ -60,23 +62,27 @@ def tests(c):
 
 @task
 def makemigrations(c):
+    """Create database migrations if needed"""
     with cd("testproj"):
         c.run(f"{VENV}/bin/python manage.py makemigrations")
 
 
 @task
 def migrate(c):
+    """Migrate database to current schema"""
     with cd("testproj"):
         c.run(f"{VENV}/bin/python manage.py migrate")
 
 
 @task
-def black(c, diff=False):
-    """Run Black auto-formatter, optionally with --diff"""
+def black(c, check=False, diff=False):
+    """Run Black auto-formatter, optionally with --check or --diff"""
+    diff_flag, check_flag = "", ""
+    if check:
+        check_flag = "--check"
     if diff:
-        c.run(f"{VENV}/bin/black --diff kagi testproj")
-    else:
-        c.run(f"{VENV}/bin/black kagi testproj")
+        diff_flag = "--diff"
+    c.run(f"{VENV}/bin/black {check_flag} {diff_flag} kagi testproj")
 
 
 @task
@@ -92,7 +98,7 @@ def flake8(c):
 @task
 def lint(c):
     c.run(f"{VENV}/bin/isort -c --recursive .isort.cfg kagi/* testproj/*")
-    c.run(f"{VENV}/bin/black --check kagi testproj")
+    black(c, check=True)
     flake8(c)
 
 
