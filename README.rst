@@ -29,14 +29,25 @@ Demo
 To see a demo, use the test project included in the repo and perform the
 following steps (using a virtual environment is optional)::
 
-   git clone https://github.com/justinmayer/kagi
-   cd kagi
-   make install
-   make serve
+Quick Set-up
+------------
 
-   cd testproj
-   python manage.py migrate
-   python manage.py createsuperuser
+First, install Poetry_::
+
+   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+
+Clone the Kagi source code::
+
+   git clone https://github.com/justinmayer/kagi.git
+
+Then install the needed dependencies, set up the project and serve the demo::
+
+   poetry install
+   invoke setup
+   invoke serve
+
+You should now be able to see the demo project login page in your
+browser at: http://localhost:8000/kagi/login
 
 Supported browsers and versions can be found here: https://caniuse.com/webauthn
 WebAuthn also requires that the site is served over a secure (HTTPS) connection.
