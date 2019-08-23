@@ -10,13 +10,13 @@ jobs:
       - run: poetry config settings.virtualenvs.in-project true
       - run:
           command: |
-            poetry run make install
+            poetry run invoke install
       - run:
           command: |
-            poetry run make tests
+            poetry run invoke tests
       - run:
           command: |
-            poetry run make lint
+            poetry run invoke lint
 
 workflows:
   version: 2
