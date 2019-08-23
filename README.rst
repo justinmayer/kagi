@@ -75,3 +75,5 @@ https://github.com/Yubico/libu2f-host/blob/master/70-u2f.rules for some
 discussion of the rule to make it accessible. If you just want a quick
 temporary fix, you can run ``sudo chmod 666 /dev/hidraw*`` every time
 after you plug in your key (the files disappear after unplugging).
+
+.. _Poetry: https://poetry.eustace.io/docs/#installation
