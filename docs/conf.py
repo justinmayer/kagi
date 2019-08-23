@@ -15,7 +15,7 @@ author = "Justin Mayer & Rémy Hubscher"
 extensions = ["sphinx.ext.autosectionlabel", "sphinx.ext.extlinks"]
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
-
+master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
 
