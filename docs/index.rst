@@ -8,7 +8,8 @@ Kagi provides support for WebAuthn_ / FIDO2 security keys and TOTP tokens in Dja
    :caption: Contents:
 
    Home <self>
-   contributing
+   community
+   troubleshooting
 
 .. Links
 
