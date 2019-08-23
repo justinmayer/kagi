@@ -14,9 +14,9 @@ VENV_PATH = Path(ACTIVE_VENV) if ACTIVE_VENV else (VENV_HOME / "kagi")
 VENV = str(VENV_PATH.expanduser())
 
 TOOLS = ["poetry", "pre-commit"]
-POETRY = which("poetry") if which("poetry") else (VENV / "bin" / "poetry")
+POETRY = which("poetry") if which("poetry") else (VENV / Path("bin") / "poetry")
 PRECOMMIT = (
-    which("pre-commit") if which("pre-commit") else (VENV / "bin" / "pre-commit")
+    which("pre-commit") if which("pre-commit") else (VENV / Path("bin") / "pre-commit")
 )
 
 
