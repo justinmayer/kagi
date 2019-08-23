@@ -36,7 +36,7 @@ First, install Poetry_::
 
    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 
-Clone the kagi source code::
+Clone the Kagi source code::
 
    git clone https://github.com/justinmayer/kagi.git
 
@@ -46,7 +46,8 @@ Then install the needed dependencies, set up the project and serve the demo::
    invoke setup
    invoke serve
 
-Your local environment should now be ready to go!
+You should now be able to see the demo project login page in your
+browser at: http://localhost:8000/kagi/login
 
 Supported browsers and versions can be found here: https://caniuse.com/webauthn
 WebAuthn also requires that the site is served over a secure (HTTPS) connection.
