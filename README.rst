@@ -1,8 +1,25 @@
 Kagi
 ----
 
-.. image:: https://circleci.com/gh/justinmayer/kagi.svg?style=svg
+|coc| |circleci| |pypi| |readthedocs|
+
+
+.. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
+    :target: https://github.com/justinmayer/kagi/blob/master/CODE_OF_CONDUCT.rst
+    :alt: Code of Conduct
+
+.. |circleci| image:: https://img.shields.io/circleci/build/github/justinmayer/kagi
     :target: https://circleci.com/gh/justinmayer/kagi
+    :alt: Build Status
+
+.. |readthedocs| image:: https://readthedocs.org/projects/kagi/badge/?version=latest
+    :target: https://kagi.readthedocs.io/en/latest/
+    :alt: Documentation Status
+
+.. |pypi| image:: https://img.shields.io/pypi/v/kagi.svg
+    :target: https://pypi.python.org/pypi/kagi
+    :alt: PyPI Version
+
 
 Kagi provides support for FIDO WebAuthn security keys and TOTP tokens in Django.
 
