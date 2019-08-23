@@ -9,7 +9,7 @@ Communication channels
 ----------------------
 
 * Don't hesitate to `create issues <https://github.com/justinmayer/kagi/issues>`
-  on the github repository.
+  on the GitHub repository.
 
 .. _how-to-contribute:
 
@@ -21,13 +21,13 @@ Thanks for your interest in contributing to *Kagi*!
 .. note::
 
     We love community feedback and are glad to review contributions of any
-    size - from typos in the documentation to critical bug fixes - so don't be
+    size — from typos in the documentation to critical bug fixes — so don't be
     shy!
 
 Report bugs
 :::::::::::
 
-Report bugs at https://github.com/Kinto/kinto/issues/new
+Report bugs at https://github.com/justinmayer/kagi/issues/new
 
 If you are reporting a bug, please include:
 
@@ -63,12 +63,12 @@ articles, and such.
 This official documentation is maintained in `GitHub <https://github.com/justinmayer/kagi/>`_.
 The ``docs`` folder contains the documentation sources in `reStructuredText <https://en.wikipedia.org/wiki/ReStructuredText>`_ format. And you can generate the docs locally with::
 
-    make docs
+    invoke docs
 
 Output is written at ``docs/_build/html/index.html``.
 
 We obviously accept pull requests for this documentation, just as we accept them
-for bug fixes and features! See :github:`open issues <justinmayer/kagi/labels/documentation>`.
+for bug fixes and features! See :GitHub:`open issues <justinmayer/kagi/labels/documentation>`.
 
 
 Submit feedback

@@ -15,7 +15,7 @@ If you do not find a solution to your problem here, please
 socket.error: [Errno 48] Address already in use
 ===============================================
 
-Another process has occupied django's default port 8000.
+Another process has occupied Django's default port 8000.
 
 To fix this, see which service is running on port 8000::
 
@@ -29,10 +29,13 @@ $ kill -kill [PID]
 DOMException / SecurityError: "The operation is insecure."
 ==========================================================
 
-This means that the `navigator.credentials` Javascript API refused to start because:
+This means that the `navigator.credentials` Javascript API refused to
+start because you are not in a secure context.
+
+This means that either:
 
 - You are not connected on your website through HTTPS
 - The certificate doesn't match the HOST.
 - In development, maybe you are trying
-  https://127.0.0.1:8000/kagi/login/ rather than
-  https://localhost:8000/kagi/login/
+  http://127.0.0.1:8000/kagi/login/ rather than
+  http://localhost:8000/kagi/login/
