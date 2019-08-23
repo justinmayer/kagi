@@ -5,7 +5,6 @@ from shutil import which
 from invoke import task
 from invoke.util import cd
 
-TOOLS = ["poetry", "pre-commit"]
 DEMO_PORT = os.environ.get("DEMO_PORT", 8000)
 DOCS_PORT = os.environ.get("DOCS_PORT", 8000)
 
@@ -14,6 +13,7 @@ VENV_HOME = Path(os.environ.get("WORKON_HOME", "~/.local/share/virtualenvs"))
 VENV_PATH = Path(ACTIVE_VENV) if ACTIVE_VENV else (VENV_HOME / "kagi")
 VENV = str(VENV_PATH.expanduser())
 
+TOOLS = ["poetry", "pre-commit"]
 POETRY = which("poetry") if which("poetry") else (VENV / "bin" / "poetry")
 PRECOMMIT = (
     which("pre-commit") if which("pre-commit") else (VENV / "bin" / "pre-commit")
@@ -86,8 +86,11 @@ def black(c, check=False, diff=False):
 
 
 @task
-def isort(c):
-    c.run(f"{VENV}/bin/isort --recursive .isort.cfg kagi/* testproj/*")
+def isort(c, check=False):
+    check_flag = ""
+    if check:
+        check_flag = "-c"
+    c.run(f"{VENV}/bin/isort {check_flag} --recursive .isort.cfg kagi/* testproj/*")
 
 
 @task
@@ -97,7 +100,7 @@ def flake8(c):
 
 @task
 def lint(c):
-    c.run(f"{VENV}/bin/isort -c --recursive .isort.cfg kagi/* testproj/*")
+    isort(c, check=True)
     black(c, check=True)
     flake8(c)
 
