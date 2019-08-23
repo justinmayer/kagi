@@ -4,8 +4,29 @@ Contributing
 We welcome your contributions to Kagi and strive to make it as easy as possible
 to participate.
 
-Initial Set-up
---------------
+Quick Set-up
+------------
+
+First, install Poetry_::
+
+   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+
+Go to the `Kagi repository`_ on GitHub and tap the **Fork** button at top-right.
+Then clone the source for your fork and add the upstream project as a Git remote::
+
+   git clone https://github.com/YOUR_USERNAME/kagi.git
+   cd kagi
+   git remote add upstream https://github.com/justinmayer/kagi.git
+
+The last two steps will install the needed dependencies and set up the project::
+
+   poetry install
+   invoke setup
+
+Your local environment should now be ready to go!
+
+Detailed Set-up
+---------------
 
 .. highlight:: none
 
