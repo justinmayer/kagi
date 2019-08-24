@@ -42,10 +42,7 @@ def viewdocs(c):
 def serve(c):
     """Serve demo site at https://localhost:$DEMO_PORT/ (default port is 8000)"""
     with cd("testproj"):
-        c.run(
-            f"{VENV}/bin/python manage.py runserver {DEMO_PORT} ",
-            pty=True,
-        )
+        c.run(f"{VENV}/bin/python manage.py runserver {DEMO_PORT} ", pty=True)
 
 
 @task
