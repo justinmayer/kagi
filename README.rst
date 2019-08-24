@@ -54,10 +54,10 @@ Clone the Kagi source code and switch to its directory::
 
    git clone https://github.com/justinmayer/kagi.git && cd kagi
 
-Install the dependencies, set up the project, create a user, and serve the demo::
+Install dependencies, run database migrations, create a user, and serve the demo::
 
    poetry install
-   invoke setup
+   invoke migrate
    python testproj/manage.py createsuperuser
    invoke serve
 
