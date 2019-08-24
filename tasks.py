@@ -77,7 +77,7 @@ def black(c, check=False, diff=False):
         check_flag = "--check"
     if diff:
         diff_flag = "--diff"
-    c.run(f"{VENV}/bin/black {check_flag} {diff_flag} kagi testproj")
+    c.run(f"{VENV}/bin/black {check_flag} {diff_flag} kagi testproj tasks.py")
 
 
 @task
@@ -85,12 +85,14 @@ def isort(c, check=False):
     check_flag = ""
     if check:
         check_flag = "-c"
-    c.run(f"{VENV}/bin/isort {check_flag} --recursive .isort.cfg kagi/* testproj/*")
+    c.run(
+        f"{VENV}/bin/isort {check_flag} --recursive .isort.cfg kagi/* testproj/* tasks.py"
+    )
 
 
 @task
 def flake8(c):
-    c.run(f"{VENV}/bin/flake8 kagi testproj")
+    c.run(f"{VENV}/bin/flake8 kagi testproj tasks.py")
 
 
 @task
