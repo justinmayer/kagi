@@ -14,16 +14,14 @@
 </script>
 {{ block.super }}
 
-{% comment %}
-TODO: Handle browser not supporting navigator.credentials API.
-{% endcomment %}
-<div id="kagi-not-defined-error" style="display: none">
+<div id="webauthn-undefined-error" style="display: none">
     {% blocktrans %}
     You must be using a compatible browser to use a WebAuthn security key.
-    The following browsers are known to be compatible
+    The following browsers are known to be compatible:
     {% endblocktrans %}
     <ul>
-      <li>{% trans 'Chrome 41 and higher' %}
+      <li>{% trans 'Firefox 67 and higher' %}
+      <li>{% trans 'Chrome 67 and higher' %}
     </ul>
 </div>
 {% endblock %}

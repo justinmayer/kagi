@@ -316,4 +316,14 @@ document.addEventListener("DOMContentLoaded", e => {
   if (loginElement) {
       loginElement.addEventListener('click', didClickLogin);
   }
+  // If browser doesn't support WebAuthn, hide related elements and show warning
+  if (typeof(PublicKeyCredential) == "undefined") {
+    var webAuthnFeature = document.getElementById("webauthn-feature");
+    if (webAuthnFeature) {
+      webAuthnFeature.style.display = "none";
+    }
+    var webAuthnUndefinedError = document.getElementById("webauthn-undefined-error");
+    if (webAuthnUndefinedError) {
+      webAuthnUndefinedError.style.display = "block"; }
+    }
 });
