@@ -121,3 +121,4 @@ def setup(c):
     c.run(f"{VENV}/bin/pip install -U pip")
     tools(c)
     c.run(f"{POETRY} install")
+    precommit(c)
