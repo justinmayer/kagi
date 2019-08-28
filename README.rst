@@ -23,8 +23,9 @@ Kagi
 
 Kagi provides support for FIDO WebAuthn security keys and TOTP tokens in Django.
 
-Kagi is a working proof-of-concept and isn’t yet production-ready. There may be
-some TODOs in the code that should be fixed before relying on it.
+Kagi is a relatively young project and has not yet been fully battle-tested.
+Its use in a high-impact environment should be accompanied by a thorough
+understanding of how it works before relying on it.
 
 Installation
 ------------
