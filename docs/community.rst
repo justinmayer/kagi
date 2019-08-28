@@ -8,7 +8,7 @@ You can check out Kagi on GitHub at https://github.com/justinmayer/kagi/.
 Communication channels
 ----------------------
 
-* Don't hesitate to `create issues <https://github.com/justinmayer/kagi/issues>`
+* Don't hesitate to `create issues <https://github.com/justinmayer/kagi/issues>`_
   on the GitHub repository.
 
 .. _how-to-contribute:
