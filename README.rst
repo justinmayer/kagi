@@ -1,5 +1,5 @@
 Kagi
-----
+====
 
 |coc| |circleci| |pypi| |readthedocs|
 
@@ -23,69 +23,68 @@ Kagi
 
 Kagi provides support for FIDO WebAuthn security keys and TOTP tokens in Django.
 
-Kagi is a working proof-of-concept and isn't yet production ready. There are
-many TODOs sprinkled around the code that should be fixed before relying on it.
+Kagi is a relatively young project and has not yet been fully battle-tested.
+Its use in a high-impact environment should be accompanied by a thorough
+understanding of how it works before relying on it.
 
 Installation
-============
+------------
 
 ::
 
-    $ pip install kagi
+    pip install kagi
 
 Add ``kagi`` to ``INSTALLED_APPS`` and include ``kagi.urls`` somewhere in your
-URL patterns. Set ``LOGIN_URL = 'kagi:login'``.
+URL patterns. Set: ``LOGIN_URL = "kagi:login"``
 
-Make sure that Django's built-in login view does not have a
+Make sure that Django’s built-in login view does not have a
 ``urlpattern``, because it will authenticate users without their second
 factor. Kagi provides its own login view to handle that.
 
 Demo
-====
+----
 
-To see a demo, use the test project included in the repo and perform the
-following steps (using a virtual environment is optional)::
-
-Quick Set-up
-------------
+To see a demo, use the test project included in this repository and perform the
+following steps (creating and activating a virtual environment first is optional).
 
 First, install Poetry_::
 
    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 
-Clone the Kagi source code::
+Clone the Kagi source code and switch to its directory::
 
-   git clone https://github.com/justinmayer/kagi.git
+   git clone https://github.com/justinmayer/kagi.git && cd kagi
 
-Then install the needed dependencies, set up the project and serve the demo::
+Install dependencies, run database migrations, create a user, and serve the demo::
 
    poetry install
-   invoke setup
+   invoke migrate
+   python testproj/manage.py createsuperuser
    invoke serve
 
-You should now be able to see the demo project login page in your
-browser at: http://localhost:8000/kagi/login
+You should now be able to see the demo project login page in your browser at:
+http://localhost:8000/kagi/login
 
 Supported browsers and versions can be found here: https://caniuse.com/webauthn
-WebAuthn also requires that the site is served over a secure (HTTPS) connection.
+For domains other than ``localhost``, WebAuthn requires that the site is served
+over a secure (HTTPS) connection.
 
-Start by going to https://localhost:8000/kagi/login. Since you
-haven't added any security keys yet, you will be logged in with just a
-username and password.
+Since you haven’t added any security keys yet, you will be logged in with just a
+username and password. Once logged in and on the multi-factor settings page,
+choose “Manage WebAuthn keys” and then “Add another key” and follow the provided
+instructions. Once WebAuthn and/or TOTP has been successfully configured, your
+account will be protected by multi-factor authentication, and when you log in
+the next time, your WebAuthn key or TOTP token will be required.
 
-Once logged in, click "Add another key" on the key management page and follow
-the instructions. Now your account is protected by multi-factor authentication,
-and when you log in again your WebAuthn key or TOTP token will be required.
-
-You can manage the keys attached to your account on the key
-management page as well, at the URL https://localhost:8000/kagi/keys.
+You can manage the keys attached to your account on the key management page at:
+http://localhost:8000/kagi/keys
 
 
 Using WebAuthn Keys on Linux
 ============================
 
-Some distros don't come with udev rules to make USB HID /dev/
-nodes accessible to normal users. If your key doesn't light up
+Some distros don’t come with udev rules to make USB HID /dev/
+nodes accessible to normal users. If your key doesn’t light up
 and start flashing when you expect it to, this might be what is
 happening. See https://github.com/Yubico/libu2f-host/issues/2 and
 https://github.com/Yubico/libu2f-host/blob/master/70-u2f.rules for some
