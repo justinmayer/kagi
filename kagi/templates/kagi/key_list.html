@@ -1,5 +1,6 @@
 {% extends "kagi/base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block content %}
 {{ block.super }}
@@ -30,5 +31,9 @@
     {% endfor %}
   </tbody>
 </table>
-<a href="{% url 'kagi:add-webauthn-key' %}">{% trans 'Add another key' %}</a>
+<div id="webauthn-feature">
+  <a href="{% url 'kagi:add-webauthn-key' %}">{% trans 'Add another key' %}</a>
+</div>
+
+<script src="{% static 'kagi/webauthn.js' %}"></script>
 {% endblock %}
