@@ -16,12 +16,8 @@
 
 <div id="webauthn-undefined-error" style="display: none">
     {% blocktrans %}
-    You must be using a compatible browser to use a WebAuthn security key.
-    The following browsers are known to be compatible:
+    This browser is not among the <a href="https://caniuse.com/webauthn" target="_blank">
+    list of browsers that support WebAuthn security keys.</a>
     {% endblocktrans %}
-    <ul>
-      <li>{% trans 'Firefox 67 and higher' %}
-      <li>{% trans 'Chrome 67 and higher' %}
-    </ul>
 </div>
 {% endblock %}
