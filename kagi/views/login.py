@@ -22,11 +22,7 @@ class KagiLoginView(LoginView):
         return self.template_name == "admin/login.html"
 
     def requires_two_factor(self, user):
-        return (
-            user.webauthn_keys.exists()
-            or user.webauthn_keys.exists()
-            or user.totp_devices.exists()
-        )
+        return user.webauthn_keys.exists() or user.totp_devices.exists()
 
     def form_valid(self, form):
         user = form.get_user()
