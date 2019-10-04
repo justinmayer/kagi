@@ -78,7 +78,8 @@ class TOTPDevice(models.Model):
 
         token = str(token)
         for t in times_to_check:
-            if hmac.compare_digest(totp(self.key, t), token):
+            # BinaryField can be a MemoryView, so make sure to send bytes to hmac.
+            if hmac.compare_digest(totp(bytes(self.key), t), token):
                 self.last_t = T(t)
                 return True
         return False
