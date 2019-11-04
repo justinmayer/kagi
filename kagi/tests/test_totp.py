@@ -49,7 +49,7 @@ def test_add_a_new_totp_device_shows_a_qrcode(admin_client):
 
 
 def test_add_a_new_totp_device_context_data_contains_the_base32_key_and_otpauth_link(
-    admin_client
+    admin_client,
 ):
     response = admin_client.get(reverse("kagi:add-totp"))
     assert response.status_code == 200
@@ -61,7 +61,7 @@ def test_add_a_new_totp_device_context_data_contains_the_base32_key_and_otpauth_
 
 
 def test_add_a_new_totp_device_validates_the_otpauth_code_and_change_key_in_case_of_mismatch(
-    admin_client
+    admin_client,
 ):
     response = admin_client.get(reverse("kagi:add-totp"))
     assert response.status_code == 200
@@ -76,7 +76,7 @@ def test_add_a_new_totp_device_validates_the_otpauth_code_and_change_key_in_case
 
 
 def test_add_a_new_totp_device_validates_the_otpauth_code_and_create_the_device_if_valid(
-    admin_client
+    admin_client,
 ):
     response = add_new_totp_device(admin_client)
     assert response.status_code == 302

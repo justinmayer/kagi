@@ -141,7 +141,7 @@ def test_webauthn_verify_credential_info_fails_if_registration_is_invalid(admin_
 
 
 def test_webauthn_verify_credential_info_fails_if_credential_id_already_exists(
-    admin_client
+    admin_client,
 ):
     # Setup the session
     response = admin_client.post(
