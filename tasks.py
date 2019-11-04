@@ -85,9 +85,7 @@ def isort(c, check=False):
     check_flag = ""
     if check:
         check_flag = "-c"
-    c.run(
-        f"{VENV}/bin/isort {check_flag} --recursive .isort.cfg kagi/* testproj/* tasks.py"
-    )
+    c.run(f"{VENV}/bin/isort {check_flag} --recursive kagi/* testproj/* tasks.py")
 
 
 @task

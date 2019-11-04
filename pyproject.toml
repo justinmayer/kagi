@@ -51,6 +51,26 @@ sphinx = "^2.2"
 sphinx_rtd_theme = "^0.4.3"
 Werkzeug = "^0.15.5"
 
+[tool.isort]
+# Maintain compatibility with Black
+combine_as_imports = true
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+
+# Sort imports within their section independent of the import type
+force_sort_within_sections = true
+
+# Designate `django` and `kagi` as separate sections
+known_django = "django"
+known_kagi = "kagi"
+
+sections = "FUTURE,STDLIB,DJANGO,THIRDPARTY,KAGI,FIRSTPARTY,LOCALFOLDER"
+
+# Skip isort checks on these directories and files
+skip_glob = "**/migrations/**,**/node_modules/**,kagi/static/**,static,*.json,*.json"
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
