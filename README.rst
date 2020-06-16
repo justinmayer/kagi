@@ -1,7 +1,7 @@
 Kagi
 ====
 
-|coc| |circleci| |pypi| |readthedocs|
+|coc| |circleci| |coverage| |readthedocs| |pypi|
 
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
