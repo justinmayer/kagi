@@ -13,6 +13,7 @@ Kagi
     :alt: Build Status
 
 .. |coverage| image:: https://img.shields.io/badge/coverage-100%25-brightgreen
+    :target: https://github.com/justinmayer/kagi
     :alt: Code Coverage
 
 .. |readthedocs| image:: https://readthedocs.org/projects/kagi/badge/?version=latest
