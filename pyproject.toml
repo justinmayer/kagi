@@ -27,6 +27,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
+[tool.poetry.urls]
+"Tracker" = "https://github.com/justinmayer/kagi/issues"
+
 [tool.poetry.dependencies]
 Django = ">= 2.2, < 4.0"
 python = "^3.6"
