@@ -12,6 +12,9 @@ Kagi
     :target: https://circleci.com/gh/justinmayer/kagi
     :alt: Build Status
 
+.. |coverage| image:: https://img.shields.io/badge/coverage-100%25-brightgreen
+    :alt: Code Coverage
+
 .. |readthedocs| image:: https://readthedocs.org/projects/kagi/badge/?version=latest
     :target: https://kagi.readthedocs.io/en/latest/
     :alt: Documentation Status
