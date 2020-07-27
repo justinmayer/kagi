@@ -1,8 +1,5 @@
-from __future__ import print_function
-
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
-
 
 """
 This is inspired by addstatictoken in django-otp, which is licensed as follows:
