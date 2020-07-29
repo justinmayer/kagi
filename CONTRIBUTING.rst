@@ -9,19 +9,19 @@ Quick Set-up
 
 First, install Poetry_::
 
-   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 
 Go to the `Kagi repository`_ on GitHub and tap the **Fork** button at top-right.
 Then clone the source for your fork and add the upstream project as a Git remote::
 
-   git clone https://github.com/YOUR_USERNAME/kagi.git
-   cd kagi
-   git remote add upstream https://github.com/justinmayer/kagi.git
+    git clone https://github.com/YOUR_USERNAME/kagi.git
+    cd kagi
+    git remote add upstream https://github.com/justinmayer/kagi.git
 
 The last two steps will install the needed dependencies and set up the project::
 
-   poetry install
-   invoke setup
+    poetry install
+    invoke setup
 
 Your local environment should now be ready to go!
 
@@ -32,39 +32,39 @@ Detailed Set-up
 
 The first step is to install Poetry_::
 
-   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 
 Next, install Pre-commit_. Here we will install Pipx_ and use it to install Pre-commit_::
 
-   python3 -m pip install --user pipx
-   python3 -m pipx ensurepath
-   pipx install pre-commit
+    python3 -m pip install --user pipx
+    python3 -m pipx ensurepath
+    pipx install pre-commit
 
 Tell Pre-commit_ where to store its Git hooks, such as ``~/.local/share/git/templates``.
 This only needs to be done once per workstation, so if you have already run these
 commands for another project, you can skip this step::
 
-   mkdir -p ~/.local/share/git/templates
-   git config --global init.templateDir ~/.local/share/git/templates
-   pre-commit init-templatedir ~/.local/share/git/templates
+    mkdir -p ~/.local/share/git/templates
+    git config --global init.templateDir ~/.local/share/git/templates
+    pre-commit init-templatedir ~/.local/share/git/templates
 
 Go to the `Kagi repository`_ on GitHub and tap the **Fork** button at top-right.
 Then clone the source for your fork and add the upstream project as a Git remote::
 
-   git clone https://github.com/YOUR_USERNAME/kagi.git
-   cd kagi
-   git remote add upstream https://github.com/justinmayer/kagi.git
+    git clone https://github.com/YOUR_USERNAME/kagi.git
+    cd kagi
+    git remote add upstream https://github.com/justinmayer/kagi.git
 
 **(optional)** Poetry will automatically create a virtual environment for you but
 will alternatively use an already-activated environment if you prefer to create
 and activate your virtual environments manually::
 
-   python3 -m venv ~/virtualenvs/kagi
-   source ~/virtualenvs/kagi/bin/activate
+    python3 -m venv ~/virtualenvs/kagi
+    source ~/virtualenvs/kagi/bin/activate
 
 Install Kagi and its dependencies via Poetry_::
 
-   poetry install
+    poetry install
 
 Your local environment should now be ready to go!
 

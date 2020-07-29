@@ -53,18 +53,18 @@ following steps (creating and activating a virtual environment first is optional
 
 First, install Poetry_::
 
-   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 
 Clone the Kagi source code and switch to its directory::
 
-   git clone https://github.com/justinmayer/kagi.git && cd kagi
+    git clone https://github.com/justinmayer/kagi.git && cd kagi
 
 Install dependencies, run database migrations, create a user, and serve the demo::
 
-   poetry install
-   invoke migrate
-   python testproj/manage.py createsuperuser
-   invoke serve
+    poetry install
+    invoke migrate
+    python testproj/manage.py createsuperuser
+    invoke serve
 
 You should now be able to see the demo project login page in your browser at:
 http://localhost:8000/kagi/login
