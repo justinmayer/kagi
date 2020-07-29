@@ -66,7 +66,14 @@ Install Kagi and its dependencies via Poetry_::
 
     poetry install
 
-Your local environment should now be ready to go!
+Your local environment should now be ready to go. Run the test suite via::
+
+    invoke tests
+
+You can speed up test runs via the following command, replacing ``4`` with your
+workstation’s CPU core count::
+
+    PYTEST_ADDOPTS="-n 4" invoke tests
 
 .. Links
 
