@@ -213,7 +213,7 @@ def webauthn_verify_assertion(request):
 
     return JsonResponse(
         {
-            "success": "Successfully authenticated as {}".format(user.username),
+            "success": "Successfully authenticated as {}".format(username),
             "redirect_to": redirect_to,
         }
     )
