@@ -21,7 +21,7 @@ Kagi
     :alt: Documentation Status
 
 .. |pypi| image:: https://img.shields.io/pypi/v/kagi.svg
-    :target: https://pypi.python.org/pypi/kagi
+    :target: https://pypi.org/project/kagi/
     :alt: PyPI Version
 
 
