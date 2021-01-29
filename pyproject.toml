@@ -44,6 +44,7 @@ flake8-black = "^0.2.0"
 invoke = "^1.3"
 isort = "^5.2"
 livereload = "^2.6"
+psutil = {version = "^5.7", optional = true}
 pyOpenSSL = "^19.0"
 pytest = "^6.0"
 pytest-cov = "^2.7"
