@@ -38,6 +38,11 @@ repos:
       - id: python-bandit-vulnerability-check
         args: [-lll, --recursive, --exclude, "**/node_modules/**", .]
 
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.2.1
+    hooks:
+      - id: python-safety-dependencies-check
+
   - repo: https://github.com/hakancelik96/unimport
     rev: 0.7.1
     hooks:
