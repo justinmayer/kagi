@@ -1,15 +1,15 @@
 Kagi
 ====
 
-|coc| |circleci| |coverage| |readthedocs| |pypi|
+|coc| |build-status| |coverage| |readthedocs| |pypi|
 
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
     :target: https://github.com/justinmayer/kagi/blob/master/CODE_OF_CONDUCT.rst
     :alt: Code of Conduct
 
-.. |circleci| image:: https://img.shields.io/circleci/build/github/justinmayer/kagi
-    :target: https://circleci.com/gh/justinmayer/kagi
+.. |build-status| image:: https://img.shields.io/github/workflow/status/justinmayer/kagi/build
+    :target: https://github.com/justinmayer/kagi/actions
     :alt: Build Status
 
 .. |coverage| image:: https://img.shields.io/badge/coverage-100%25-brightgreen
