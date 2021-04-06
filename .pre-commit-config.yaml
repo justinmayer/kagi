@@ -21,14 +21,14 @@ repos:
       - id: black
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 3.9.0
     hooks:
       - id: flake8
         args: [--max-line-length=88]
         language_version: python3.7
 
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
       - id: isort
 
@@ -44,7 +44,7 @@ repos:
       - id: python-safety-dependencies-check
 
   - repo: https://github.com/hakancelik96/unimport
-    rev: 0.7.1
+    rev: 0.8.3
     hooks:
       - id: unimport
         args: [--remove, --requirements, --include-star-import]
