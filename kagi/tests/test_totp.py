@@ -43,8 +43,9 @@ def test_list_totp_devices(admin_client):
 def test_add_a_new_totp_device_shows_a_qrcode(admin_client):
     response = admin_client.get(reverse("kagi:add-totp"))
     assert response.status_code == 200
-    assert response.context_data["qr_svg"].startswith(
-        "<?xml version='1.0' encoding='UTF-8'?>\n<svg height=\"49mm\" "
+    assert re.match(
+        r"<\?xml version='1\.0' encoding='UTF-8'\?>\n<svg (width|height)=\"49mm\" ",
+        response.context_data["qr_svg"],
     )
 
 
