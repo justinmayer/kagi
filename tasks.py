@@ -7,6 +7,7 @@ from invoke.util import cd
 
 DEMO_PORT = os.environ.get("DEMO_PORT", 8000)
 DOCS_PORT = os.environ.get("DOCS_PORT", 8000)
+PTY = True if os.name != "nt" else False
 
 ACTIVE_VENV = os.environ.get("VIRTUAL_ENV", None)
 VENV_HOME = Path(os.environ.get("WORKON_HOME", "~/.local/share/virtualenvs"))
@@ -23,7 +24,7 @@ PRECOMMIT = (
 @task
 def docs(c):
     """Build documentation"""
-    c.run(f"{VENV}/bin/sphinx-build docs docs/_build")
+    c.run(f"{VENV}/bin/sphinx-build docs docs/_build", pty=PTY)
 
 
 @task(docs)
@@ -42,7 +43,7 @@ def viewdocs(c):
 def serve(c):
     """Serve demo site at https://localhost:$DEMO_PORT/ (default port is 8000)"""
     with cd("testproj"):
-        c.run(f"{VENV}/bin/python manage.py runserver {DEMO_PORT} ", pty=True)
+        c.run(f"{VENV}/bin/python manage.py runserver {DEMO_PORT} ", pty=PTY)
 
 
 @task
@@ -51,7 +52,7 @@ def tests(c):
     c.run(
         f"{VENV}/bin/pytest -s --doctest-modules --cov-report term-missing "
         "--cov-fail-under 100 --cov kagi",
-        pty=True,
+        pty=PTY,
     )
 
 
@@ -59,14 +60,14 @@ def tests(c):
 def makemigrations(c):
     """Create database migrations if needed"""
     with cd("testproj"):
-        c.run(f"{VENV}/bin/python manage.py makemigrations")
+        c.run(f"{VENV}/bin/python manage.py makemigrations", pty=PTY)
 
 
 @task
 def migrate(c):
     """Migrate database to current schema"""
     with cd("testproj"):
-        c.run(f"{VENV}/bin/python manage.py migrate")
+        c.run(f"{VENV}/bin/python manage.py migrate", pty=PTY)
 
 
 @task
@@ -77,7 +78,7 @@ def black(c, check=False, diff=False):
         check_flag = "--check"
     if diff:
         diff_flag = "--diff"
-    c.run(f"{VENV}/bin/black {check_flag} {diff_flag} kagi testproj tasks.py")
+    c.run(f"{VENV}/bin/black {check_flag} {diff_flag} kagi testproj tasks.py", pty=PTY)
 
 
 @task
@@ -85,12 +86,12 @@ def isort(c, check=False):
     check_flag = ""
     if check:
         check_flag = "-c"
-    c.run(f"{VENV}/bin/isort {check_flag} .")
+    c.run(f"{VENV}/bin/isort {check_flag} .", pty=PTY)
 
 
 @task
 def flake8(c):
-    c.run(f"{VENV}/bin/flake8 kagi testproj tasks.py")
+    c.run(f"{VENV}/bin/flake8 kagi testproj tasks.py", pty=PTY)
 
 
 @task
@@ -105,18 +106,18 @@ def tools(c):
     """Install tools in the virtual environment if not already on PATH"""
     for tool in TOOLS:
         if not which(tool):
-            c.run(f"{VENV}/bin/pip install {tool}")
+            c.run(f"{VENV}/bin/pip install {tool}", pty=PTY)
 
 
 @task
 def precommit(c):
     """Install pre-commit hooks to .git/hooks/pre-commit"""
-    c.run(f"{PRECOMMIT} install")
+    c.run(f"{PRECOMMIT} install", pty=PTY)
 
 
 @task
 def setup(c):
-    c.run(f"{VENV}/bin/pip install -U pip")
+    c.run(f"{VENV}/bin/pip install -U pip", pty=PTY)
     tools(c)
-    c.run(f"{POETRY} install")
+    c.run(f"{POETRY} install", pty=PTY)
     precommit(c)
