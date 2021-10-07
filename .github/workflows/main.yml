@@ -45,10 +45,17 @@ jobs:
         with:
           path: ~/.cache/pypoetry/virtualenvs
           key: poetry-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
+      - name: Install Django
         run: |
           poetry run pip install --upgrade pip
           poetry run pip install "Django~=${{ matrix.django-version }}.0"
+      - name: Python and Django versions
+        run: |
+          poetry run echo "Python ${{ matrix.python-version }} -> Django ${{ matrix.django-version }}"
+          poetry run python --version
+          poetry run echo "Django `django-admin --version`"
+      - name: Install dependencies
+        run: |
           poetry install
       - name: Run tests
         run: poetry run invoke tests
