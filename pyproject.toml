@@ -8,6 +8,7 @@ readme = "README.rst"
 keywords = ["Django", "WebAuthn", "authentication", "MFA", "2FA"]
 
 repository = "https://github.com/justinmayer/kagi"
+documentation = "https://kagi.readthedocs.io"
 
 classifiers = [
     "Development Status :: 4 - Beta",
