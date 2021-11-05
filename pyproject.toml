@@ -71,5 +71,5 @@ sections = "FUTURE,STDLIB,DJANGO,THIRDPARTY,KAGI,FIRSTPARTY,LOCALFOLDER"
 skip_glob = "**/migrations/**,**/node_modules/**,kagi/static/**,static,*.json,*.json"
 
 [build-system]
-requires = ["poetry>=1.0"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
