@@ -9,7 +9,7 @@
 <form id="register-form" name="register" method="get">
     {% csrf_token %}
     {{ form }}
-    <button id="register" type="submit">Add WebAuthn Key</button>
+    <button id="register" type="submit">{% trans 'Add WebAuthn Key' %}</button>
 </form>
 
 <script src="{% static 'kagi/webauthn.js' %}"></script>
