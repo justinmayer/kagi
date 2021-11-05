@@ -53,7 +53,7 @@ following steps (creating and activating a virtual environment first is optional
 
 First, install Poetry_::
 
-    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
 
 Clone the Kagi source code and switch to its directory::
 
