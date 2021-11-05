@@ -14,7 +14,7 @@
 <ul>
   <li>{% trans "WebAuthn" %}: {% if webauthn_enabled %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}</li>
   <li>{% trans "TOTP" %}: {% if totp_enabled %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}</li>
-  <li>{% trans "Backup codes remaining" %}: {{ backup_codes_count }}</li>
+  <li>{% trans "Backup codes" %}: {% if backup_codes_count %}{{ backup_codes_count }} {% trans "remaining" %}{% else %}{% trans "None generated" %}{% endif %}</li>
 </ul>
 
 {% endblock %}
