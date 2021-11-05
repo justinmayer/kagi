@@ -1,7 +1,7 @@
 Community
 ---------
 
-You can check out Kagi on GitHub at https://github.com/justinmayer/kagi/.
+You can check out Kagi on GitHub at: https://github.com/justinmayer/kagi
 
 .. _communication_channels:
 
@@ -37,7 +37,7 @@ If you are reporting a bug, please include:
 Fix bugs
 ::::::::
 
-Check out the `open bugs <https://github.com/justinmayer/kagi/issues>`_ - anything
+Check out the `open issues <https://github.com/justinmayer/kagi/issues>`_ - anything
 tagged with the |good-first-issue label|_ could be a good choice for newcomers.
 
 .. |good-first-issue label| replace:: **good-first-issue** label
@@ -90,6 +90,6 @@ If you are proposing a feature:
   to implement.
 * Feel free to include any code you might already have, even if it's just a
   rough idea. This is a volunteer-driven project, and contributions
-  are welcome :)
+  are welcome.  :)
 
 .. include:: ../CONTRIBUTING.rst

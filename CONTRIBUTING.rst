@@ -9,7 +9,7 @@ Quick Set-up
 
 First, install Poetry_::
 
-    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
 
 Go to the `Kagi repository`_ on GitHub and tap the **Fork** button at top-right.
 Then clone the source for your fork and add the upstream project as a Git remote::
@@ -18,9 +18,10 @@ Then clone the source for your fork and add the upstream project as a Git remote
     cd kagi
     git remote add upstream https://github.com/justinmayer/kagi.git
 
-The last two steps will install the needed dependencies and set up the project::
+Install dependencies and set up the project::
 
     poetry install
+    poetry shell
     invoke setup
 
 Your local environment should now be ready to go!
@@ -32,7 +33,7 @@ Detailed Set-up
 
 The first step is to install Poetry_::
 
-    curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
 
 Next, install Pre-commit_. Here we will install Pipx_ and use it to install Pre-commit_::
 
@@ -55,6 +56,10 @@ Then clone the source for your fork and add the upstream project as a Git remote
     cd kagi
     git remote add upstream https://github.com/justinmayer/kagi.git
 
+Install the Pre-commit_ hooks::
+
+    pre-commit install
+
 **(optional)** Poetry will automatically create a virtual environment for you but
 will alternatively use an already-activated environment if you prefer to create
 and activate your virtual environments manually::
@@ -66,8 +71,11 @@ Install Kagi and its dependencies via Poetry_::
 
     poetry install
 
-Your local environment should now be ready to go. Run the test suite via::
+Your local environment should now be ready to go. Use the following command to
+run the test suite (you can omit ``poetry shell`` if you manually created and
+activated a virtual environment via the optional step above)::
 
+    poetry shell
     invoke tests
 
 You can speed up test runs via the following command, replacing ``4`` with your
