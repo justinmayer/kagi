@@ -51,6 +51,12 @@ sphinx = "^4.0"
 sphinx_rtd_theme = "^1.0"
 Werkzeug = "^2.0"
 
+[tool.autopub]
+project-name = "Kagi"
+git-username = "botpub"
+git-email = "botpub@autopub.rocks"
+append-github-contributor = true
+
 [tool.isort]
 # Maintain compatibility with Black
 combine_as_imports = true
