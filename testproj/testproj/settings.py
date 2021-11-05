@@ -114,6 +114,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 LOGIN_REDIRECT_URL = "kagi:two-factor-settings"
 LOGIN_URL = "kagi:login"
 
