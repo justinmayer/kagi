@@ -98,4 +98,14 @@ temporary fix, you can run ``sudo chmod 666 /dev/hidraw*`` every time
 after you plug in your key (the files disappear after unplugging).
 
 
+Gratitude
+=========
+
+This project would not exist without the significant contributions made by
+`Rémy HUBSCHER <https://github.com/natim>`_.
+
+Thanks to Gavin Wahl for `django-u2f <https://github.com/gavinwahl/django-u2f>`_,
+which served as useful initial scaffolding for this project.
+
+
 .. _Poetry: https://python-poetry.org/docs/#installation
