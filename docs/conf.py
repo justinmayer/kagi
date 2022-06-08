@@ -1,3 +1,4 @@
+import datetime
 import os
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
@@ -6,7 +7,8 @@ on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 # -- Project information -----------------------------------------------------
 
 project = "Kagi"
-copyright = "2019 – present, Justin Mayer & Rémy Hubscher"
+year = datetime.datetime.now().date().year
+copyright = f"2019–{year} Justin Mayer & Rémy Hubscher"
 author = "Justin Mayer & Rémy Hubscher"
 
 
@@ -19,15 +21,15 @@ master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = "default"
-if not on_rtd:
-    try:
-        import sphinx_rtd_theme
+html_title = "Kagi Docs"
 
-        html_theme = "sphinx_rtd_theme"
-        html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-    except ImportError:
-        pass
+html_theme = "default"
+try:
+    import furo  # NOQA
+
+    html_theme = "furo"
+except ImportError:
+    pass
 
 html_static_path = ["_static"]
 
