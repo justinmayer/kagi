@@ -27,7 +27,7 @@ def hotp(key, counter, digits=6):
     hs = hmac.new(key, msg, hashlib.sha1).digest()
     offset = hs[19] & 0x0F
     val = struct.unpack(">L", hs[offset : offset + 4])[0] & 0x7FFFFFFF
-    return "{val:0{digits}d}".format(val=val % 10 ** digits, digits=digits)
+    return "{val:0{digits}d}".format(val=val % 10**digits, digits=digits)
 
 
 def T(t, step=30):
