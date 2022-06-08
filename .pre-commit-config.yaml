@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for info on hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.3.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -19,7 +19,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 21.10b0
+    rev: 22.3.0
     hooks:
       - id: black
 
@@ -30,29 +30,29 @@ repos:
         args: [--max-line-length=88]
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.0
+    rev: 5.10.1
     hooks:
       - id: isort
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks-bandit
-    rev: v1.0.5
+    rev: v1.0.6
     hooks:
       - id: python-bandit-vulnerability-check
         args: [-lll, --recursive, --exclude, "**/node_modules/**", .]
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-    rev: v1.2.2
+    rev: v1.2.4
     hooks:
       - id: python-safety-dependencies-check
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.0
+    rev: v2.34.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
 
   - repo: https://github.com/hakancelik96/unimport
-    rev: 0.9.2
+    rev: 0.9.6
     hooks:
       - id: unimport
         args: [--remove, --requirements, --include-star-import]
