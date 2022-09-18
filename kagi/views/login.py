@@ -6,7 +6,7 @@ from django.contrib.auth.views import LoginView
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.urls import reverse
-from django.utils.http import is_safe_url, urlencode
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.generic import TemplateView
 
 from ..forms import BackupCodeForm, SecondFactorForm, TOTPForm
@@ -39,7 +39,7 @@ class KagiLoginView(LoginView):
                 self.request.GET.get(auth.REDIRECT_FIELD_NAME, ""),
             )
             params = {}
-            if is_safe_url(
+            if url_has_allowed_host_and_scheme(
                 url=redirect_to,
                 allowed_hosts=[self.request.get_host()],
                 require_https=True,
@@ -143,6 +143,8 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
         redirect_to = self.request.POST.get(
             auth.REDIRECT_FIELD_NAME, self.request.GET.get(auth.REDIRECT_FIELD_NAME, "")
         )
-        if not is_safe_url(url=redirect_to, allowed_hosts=[self.request.get_host()]):
+        if not url_has_allowed_host_and_scheme(
+            url=redirect_to, allowed_hosts=[self.request.get_host()]
+        ):
             redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
         return HttpResponseRedirect(redirect_to)

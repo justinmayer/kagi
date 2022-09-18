@@ -3,7 +3,7 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import resolve_url
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -208,7 +208,9 @@ def webauthn_verify_assertion(request):
     redirect_to = request.POST.get(
         auth.REDIRECT_FIELD_NAME, request.GET.get(auth.REDIRECT_FIELD_NAME, "")
     )
-    if not is_safe_url(url=redirect_to, allowed_hosts=[request.get_host()]):
+    if not url_has_allowed_host_and_scheme(
+        url=redirect_to, allowed_hosts=[request.get_host()]
+    ):
         redirect_to = resolve_url(django_settings.LOGIN_REDIRECT_URL)
 
     return JsonResponse(

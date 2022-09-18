@@ -10,8 +10,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.functional import cached_property
-from django.utils.http import is_safe_url, urlencode
-from django.utils.translation import ugettext as _
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
+from django.utils.translation import gettext as _
 from django.views.generic import FormView, ListView
 
 import qrcode
@@ -86,7 +86,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_success_url(self):
-        if "next" in self.request.GET and is_safe_url(
+        if "next" in self.request.GET and url_has_allowed_host_and_scheme(
             self.request.GET["next"], allowed_hosts=[self.request.get_host()]
         ):
             return self.request.GET["next"]
