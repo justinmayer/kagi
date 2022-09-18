@@ -27,7 +27,7 @@ classifiers = [
 "Issue Tracker" = "https://github.com/justinmayer/kagi/issues"
 
 [tool.poetry.dependencies]
-Django = ">= 2.2, < 4.0"
+Django = ">= 2.2"
 python = ">= 3.7, < 4.0"
 qrcode = ">= 6.1, < 8.0"
 webauthn = "^0.4"
