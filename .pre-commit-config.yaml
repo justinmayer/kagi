@@ -19,7 +19,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 22.8.0
     hooks:
       - id: black
 
@@ -41,18 +41,18 @@ repos:
         args: [-lll, --recursive, --exclude, "**/node_modules/**", .]
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-    rev: v1.2.4
+    rev: v1.3.0
     hooks:
       - id: python-safety-dependencies-check
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
+    rev: v2.38.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
 
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 0.9.6
+    rev: 0.11.3
     hooks:
       - id: unimport
-        args: [--remove, --requirements, --include-star-import]
+        args: [--remove, --include-star-import]

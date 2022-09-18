@@ -33,7 +33,7 @@ qrcode = ">= 6.1, < 8.0"
 webauthn = "^0.4"
 
 [tool.poetry.dev-dependencies]
-black = "^22.3"
+black = "^22.8"
 flake8 = "^4.0"
 flake8-black = "^0.3"
 furo = "2022.04.07"
