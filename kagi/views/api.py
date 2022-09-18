@@ -78,9 +78,7 @@ def webauthn_verify_credential_info(request):
     try:
         webauthn_credential = webauthn_registration_response.verify()
     except Exception as e:
-        return JsonResponse(
-            {"fail": "Registration failed. Error: {}".format(e)}, status=400
-        )
+        return JsonResponse({"fail": f"Registration failed. Error: {e}"}, status=400)
 
     # W3C spec. Step 17.
     #
@@ -187,9 +185,7 @@ def webauthn_verify_assertion(request):
     try:
         sign_count = webauthn_assertion_response.verify()
     except Exception as e:
-        return JsonResponse(
-            {"fail": "Assertion failed. Error: {}".format(e)}, status=400
-        )
+        return JsonResponse({"fail": f"Assertion failed. Error: {e}"}, status=400)
 
     # Update counter.
     key.sign_count = sign_count
@@ -215,7 +211,7 @@ def webauthn_verify_assertion(request):
 
     return JsonResponse(
         {
-            "success": "Successfully authenticated as {}".format(username),
+            "success": f"Successfully authenticated as {username}",
             "redirect_to": redirect_to,
         }
     )

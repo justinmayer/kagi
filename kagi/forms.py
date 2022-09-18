@@ -8,7 +8,7 @@ class SecondFactorForm(forms.Form):
         self.user = kwargs.pop("user")
         self.request = kwargs.pop("request")
         self.appId = kwargs.pop("appId")
-        return super(SecondFactorForm, self).__init__(*args, **kwargs)
+        return super().__init__(*args, **kwargs)
 
 
 class BackupCodeForm(SecondFactorForm):

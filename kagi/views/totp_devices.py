@@ -56,14 +56,14 @@ class AddTOTPDeviceView(OriginMixin, FormView):
             return self.gen_key()
 
     def get_context_data(self, **kwargs):
-        kwargs = super(AddTOTPDeviceView, self).get_context_data(**kwargs)
+        kwargs = super().get_context_data(**kwargs)
         kwargs["base32_key"] = b32encode(self.key).decode()
         kwargs["otpauth"] = self.get_otpauth_url(self.key)
         kwargs["qr_svg"] = self.get_qrcode(kwargs["otpauth"])
         return kwargs
 
     def get_form_kwargs(self):
-        kwargs = super(AddTOTPDeviceView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs.update(
             user=self.request.user, request=self.request, appId=self.get_origin()
         )
@@ -74,7 +74,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         if device.validate_token(form.cleaned_data["token"]):
             device.save()
             messages.success(self.request, _("Device added."))
-            return super(AddTOTPDeviceView, self).form_valid(form)
+            return super().form_valid(form)
         else:
             assert not device.pk
             form.add_error("token", TOTPForm.INVALID_ERROR_MESSAGE)
@@ -91,7 +91,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         ):
             return self.request.GET["next"]
         else:
-            return super(AddTOTPDeviceView, self).get_success_url()
+            return super().get_success_url()
 
 
 class TOTPDeviceManagementView(ListView):

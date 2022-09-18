@@ -30,7 +30,7 @@ def generate_ukey():
 
 
 def get_origin(request):
-    return "{scheme}://{host}".format(scheme=request.scheme, host=request.get_host())
+    return f"{request.scheme}://{request.get_host()}"
 
 
 def get_user(request):

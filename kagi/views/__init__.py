@@ -11,7 +11,7 @@ class TwoFactorSettingsView(TemplateView):
     template_name = "kagi/two_factor_settings.html"
 
     def get_context_data(self, **kwargs):
-        context = super(TwoFactorSettingsView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["webauthn_enabled"] = self.request.user.webauthn_keys.exists()
         context["backup_codes_count"] = self.request.user.backup_codes.count()
         context["totp_enabled"] = self.request.user.totp_devices.exists()

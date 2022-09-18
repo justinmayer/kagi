@@ -28,7 +28,7 @@ class KagiLoginView(LoginView):
         user = form.get_user()
         if not self.requires_two_factor(user):
             # no keys registered, use single-factor auth
-            return super(KagiLoginView, self).form_valid(form)
+            return super().form_valid(form)
         else:
             self.request.session["kagi_pre_verify_user_pk"] = user.pk
             self.request.session["kagi_pre_verify_user_backend"] = user.backend
@@ -53,7 +53,7 @@ class KagiLoginView(LoginView):
             return HttpResponseRedirect(verify_url)
 
     def get_context_data(self, **kwargs):
-        kwargs = super(KagiLoginView, self).get_context_data(**kwargs)
+        kwargs = super().get_context_data(**kwargs)
         kwargs[auth.REDIRECT_FIELD_NAME] = self.request.GET.get(
             auth.REDIRECT_FIELD_NAME, ""
         )
@@ -93,7 +93,7 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
         self.user = self.get_user()
         if self.user is None:
             return HttpResponseRedirect(reverse("kagi:login"))
-        return super(VerifySecondFactorView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         forms = self.get_forms()
@@ -126,7 +126,7 @@ class VerifySecondFactorView(OriginMixin, TemplateView):
     def get_context_data(self, **kwargs):
         if "forms" not in kwargs:
             kwargs["forms"] = self.get_forms()
-        kwargs = super(VerifySecondFactorView, self).get_context_data(**kwargs)
+        kwargs = super().get_context_data(**kwargs)
         if self.request.GET.get("admin"):
             kwargs["base_template"] = "admin/base_site.html"
         else:
