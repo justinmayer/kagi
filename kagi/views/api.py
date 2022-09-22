@@ -8,9 +8,10 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-import webauthn
-
-from .. import settings, util
+from webauthn.helpers import bytes_to_base64url, base64url_to_bytes
+import json
+from .. import settings, utils
+from ..utils import webauthn
 from ..forms import KeyRegistrationForm
 from ..models import WebAuthnKey
 
@@ -25,59 +26,38 @@ def webauthn_begin_activate(request):
     if not form.is_valid():
         return JsonResponse({"errors": form.errors}, status=400)
 
-    username = request.user.get_username()
-    display_name = request.user.get_full_name()
-
-    challenge = util.generate_challenge(32)
-    ukey = util.generate_ukey()
+    challenge = webauthn.generate_webauthn_challenge()
 
     request.session["key_name"] = form.cleaned_data["key_name"]
-    request.session["challenge"] = challenge
-    request.session["register_ukey"] = ukey
+    request.session["challenge"] = bytes_to_base64url(challenge)
+    request.session["register_ukey"] = str(request.user.id)
 
-    make_credential_options = webauthn.WebAuthnMakeCredentialOptions(
-        challenge,
-        settings.RELYING_PARTY_NAME,
-        settings.RELYING_PARTY_ID,
-        ukey,
-        username,
-        display_name,
-        settings.WEBAUTHN_ICON_URL,
+    credential_options = webauthn.get_credential_options(
+        request.user,
+        challenge=challenge,
+        rp_name=settings.RELYING_PARTY_NAME,
+        rp_id=settings.RELYING_PARTY_ID,
     )
 
-    return JsonResponse(make_credential_options.registration_dict)
+    return JsonResponse(credential_options)
 
 
 @login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def webauthn_verify_credential_info(request):
-    challenge = request.session["challenge"]
+    challenge = base64url_to_bytes(request.session["challenge"])
     ukey = request.session["register_ukey"]
-
-    registration_response = request.POST
-    trust_anchor_dir = settings.WEBAUTHN_TRUSTED_CERTIFICATES
-    trusted_attestation_cert_required = (
-        settings.WEBAUTHN_TRUSTED_ATTESTATION_CERT_REQUIRED
-    )
-    self_attestation_permitted = settings.WEBAUTHN_SELF_ATTESTATION_PERMITTED
-    none_attestation_permitted = settings.WEBAUTHN_NONE_ATTESTATION_PERMITTED
-
-    webauthn_registration_response = webauthn.WebAuthnRegistrationResponse(
-        settings.RELYING_PARTY_ID,
-        util.get_origin(request),
-        registration_response,
-        challenge,
-        trust_anchor_dir,
-        trusted_attestation_cert_required,
-        self_attestation_permitted,
-        none_attestation_permitted,
-        uv_required=False,  # User validation
-    )
+    credentials = request.POST["credentials"]
 
     try:
-        webauthn_credential = webauthn_registration_response.verify()
-    except Exception as e:
+        webauthn_registration_response = webauthn.verify_registration_response(
+            credentials,
+            rp_id=settings.RELYING_PARTY_ID,
+            origin=utils.get_origin(request),
+            challenge=challenge,
+        )
+    except webauthn.RegistrationRejectedError as e:
         return JsonResponse({"fail": f"Registration failed. Error: {e}"}, status=400)
 
     # W3C spec. Step 17.
@@ -97,8 +77,8 @@ def webauthn_verify_credential_info(request):
         user=request.user,
         key_name=request.session.get("key_name", ""),
         ukey=ukey,
-        public_key=webauthn_credential.public_key.decode("utf-8"),
-        credential_id=webauthn_credential.credential_id.decode("utf-8"),
+        public_key=bytes_to_base64url(webauthn_credential.public_key),
+        credential_id=bytes_to_base64url(webauthn_credential.credential_id),
         sign_count=webauthn_credential.sign_count,
     )
 
@@ -115,80 +95,45 @@ def webauthn_verify_credential_info(request):
 # Login
 @require_http_methods(["POST"])
 def webauthn_begin_assertion(request):
-    challenge = util.generate_challenge(32)
-    request.session["challenge"] = challenge
+    challenge = webauthn.generate_webauthn_challenge()
+    request.session["challenge"] = bytes_to_base64url(challenge)
 
-    user = util.get_user(request)
+    user = utils.get_user(request)
 
-    username = user.get_username()
-    display_name = user.get_full_name()
-
-    keys = WebAuthnKey.objects.filter(user=user)
-
-    webauthn_users = []
-    for key in keys:
-        webauthn_users.append(
-            webauthn.WebAuthnUser(
-                key.ukey,
-                username,
-                display_name,
-                settings.WEBAUTHN_ICON_URL,
-                key.credential_id,
-                key.public_key,
-                key.sign_count,
-                settings.RELYING_PARTY_ID,
-            )
-        )
-
-    webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(
-        webauthn_users, challenge
+    webauthn_assertion_options = webauthn.get_assertion_options(
+        user, challenge=challenge, rp_id=settings.RELYING_PARTY_ID
     )
 
-    return JsonResponse(webauthn_assertion_options.assertion_dict)
+    return JsonResponse(webauthn_assertion_options)
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def webauthn_verify_assertion(request):
-    challenge = request.session.get("challenge")
-    assertion_response = request.POST
-    credential_id = assertion_response.get("id")
-
-    user = util.get_user(request)
-
-    username = user.get_username()
-    display_name = user.get_full_name()
-
-    key = WebAuthnKey.objects.filter(credential_id=credential_id, user=user).first()
-    if not key:
-        return JsonResponse({"fail": "Key does not exist."}, status=400)
-
-    webauthn_user = webauthn.WebAuthnUser(
-        key.ukey,
-        username,
-        display_name,
-        settings.WEBAUTHN_ICON_URL,
-        key.credential_id,
-        key.public_key,
-        key.sign_count,
-        settings.RELYING_PARTY_ID,
-    )
-
-    webauthn_assertion_response = webauthn.WebAuthnAssertionResponse(
-        webauthn_user,
-        assertion_response,
-        challenge,
-        util.get_origin(request),
-        uv_required=False,  # User Verification
-    )
+    challenge = base64url_to_bytes(request.session.get("challenge"))
 
     try:
-        sign_count = webauthn_assertion_response.verify()
-    except Exception as e:
+        credentials = json.loads(request.POST["credentials"])
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"fail": "Invalid WebAuthn assertion: Bad payload"}, status=400
+        )
+
+    user = utils.get_user(request)
+
+    try:
+        webauthn_assertion_response = webauthn.verify_webauthn_assertion(
+            assertion,
+            challenge=challenge,
+            user=user,
+            origin=utils.get_origin(request),
+            rp_id=settings.RELYING_PARTY_ID,
+        )
+    except webauthn.AuthenticationRejectedError as e:
         return JsonResponse({"fail": f"Assertion failed. Error: {e}"}, status=400)
 
     # Update counter.
-    key.sign_count = sign_count
+    key.sign_count = webauthn_assertion_response.new_sign_count
     key.last_used = now()
     key.save()
 

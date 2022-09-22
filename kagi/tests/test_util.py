@@ -1,4 +1,4 @@
-from ..util import get_origin
+from ..utils import get_origin
 
 
 def test_get_origin(rf):

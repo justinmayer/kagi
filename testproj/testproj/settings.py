@@ -124,7 +124,6 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 RELYING_PARTY_ID = "localhost"
 RELYING_PARTY_NAME = "Kagi Test Project"
-WEBAUTHN_ICON_URL = "https://via.placeholder.com/150"
 
 # WEBAUTHN_TRUSTED_CERTIFICATES = os.path.join(
 #     BASE_DIR, "..", "trusted_attestation_roots"

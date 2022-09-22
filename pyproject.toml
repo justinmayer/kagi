@@ -50,6 +50,9 @@ pytest-xdist = "^2.1"
 sphinx = "^4.0"
 Werkzeug = "^2.0"
 
+[tool.poetry.group.dev.dependencies]
+pretend = "^1.0.9"
+
 [tool.autopub]
 project-name = "Kagi"
 git-username = "botpub"
