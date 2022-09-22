@@ -68,7 +68,7 @@ def webauthn_verify_credential_info(request):
     # ceremony, or it MAY decide to accept the registration, e.g. while deleting
     # the older registration.
     credential_id_exists = WebAuthnKey.objects.filter(
-        credential_id=webauthn_credential.credential_id.decode("utf-8")
+        credential_id=bytes_to_base64url(webauthn_registration_response.credential_id)
     ).first()
     if credential_id_exists:
         return JsonResponse({"fail": "Credential ID already exists."}, status=400)
@@ -77,9 +77,9 @@ def webauthn_verify_credential_info(request):
         user=request.user,
         key_name=request.session.get("key_name", ""),
         ukey=ukey,
-        public_key=bytes_to_base64url(webauthn_credential.public_key),
-        credential_id=bytes_to_base64url(webauthn_credential.credential_id),
-        sign_count=webauthn_credential.sign_count,
+        public_key=bytes_to_base64url(webauthn_registration_response.credential_public_key),
+        credential_id=bytes_to_base64url(webauthn_registration_response.credential_id),
+        sign_count=webauthn_registration_response.sign_count,
     )
 
     try:
