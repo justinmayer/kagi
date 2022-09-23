@@ -56,7 +56,7 @@ def _get_webauthn_user_public_key_credential_descriptors(user, *, rp_id):
                 AuthenticatorTransport.INTERNAL,
             ],
         )
-        for credential in user.webauthn_keys
+        for credential in user.webauthn_keys.all()
     ]
 
 
@@ -66,7 +66,7 @@ def _get_webauthn_user_public_keys(user, *, rp_id):
             base64url_to_bytes(credential.public_key),
             credential.sign_count,
         )
-        for credential in user.webauthn_keys
+        for credential in user.webauthn_keys.all()
     ]
 
 

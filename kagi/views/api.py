@@ -30,7 +30,6 @@ def webauthn_begin_activate(request):
 
     request.session["key_name"] = form.cleaned_data["key_name"]
     request.session["challenge"] = bytes_to_base64url(challenge)
-    request.session["register_ukey"] = str(request.user.id)
 
     credential_options = webauthn.get_credential_options(
         request.user,
@@ -47,7 +46,6 @@ def webauthn_begin_activate(request):
 @require_http_methods(["POST"])
 def webauthn_verify_credential_info(request):
     challenge = base64url_to_bytes(request.session["challenge"])
-    ukey = request.session["register_ukey"]
     credentials = request.POST["credentials"]
 
     try:
@@ -76,15 +74,15 @@ def webauthn_verify_credential_info(request):
     WebAuthnKey.objects.create(
         user=request.user,
         key_name=request.session.get("key_name", ""),
-        ukey=ukey,
-        public_key=bytes_to_base64url(webauthn_registration_response.credential_public_key),
+        public_key=bytes_to_base64url(
+            webauthn_registration_response.credential_public_key
+        ),
         credential_id=bytes_to_base64url(webauthn_registration_response.credential_id),
         sign_count=webauthn_registration_response.sign_count,
     )
 
     try:
         del request.session["challenge"]
-        del request.session["register_ukey"]
         del request.session["key_name"]
     except KeyError:  # pragma: no cover
         pass

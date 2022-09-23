@@ -97,7 +97,10 @@ def test_webauthn_verify_credential_info(admin_client):
         credential_device_type="single_device",
         credential_backed_up=False,
     )
-    with mock.patch("kagi.views.api.webauthn.verify_registration_response", return_value = fake_validated_credential) as mocked_verify_registration_response:
+    with mock.patch(
+        "kagi.views.api.webauthn.verify_registration_response",
+        return_value=fake_validated_credential,
+    ) as mocked_verify_registration_response:
         response = admin_client.post(
             reverse("kagi:verify-credential-info"), {"credentials": "fake_payload"}
         )
@@ -114,8 +117,12 @@ def test_webauthn_verify_credential_info_fails_if_registration_is_invalid(admin_
         reverse("kagi:begin-activate"), {"key_name": "SoloKey"}
     )
 
-    with mock.patch("kagi.views.api.webauthn.verify_registration_response") as mocked_verify_registration_response:
-        mocked_verify_registration_response.side_effect = webauthn.RegistrationRejectedError("An error occurred")
+    with mock.patch(
+        "kagi.views.api.webauthn.verify_registration_response"
+    ) as mocked_verify_registration_response:
+        mocked_verify_registration_response.side_effect = (
+            webauthn.RegistrationRejectedError("An error occurred")
+        )
 
         response = admin_client.post(
             reverse("kagi:verify-credential-info"), {"credentials": "payload"}
@@ -151,10 +158,66 @@ def test_webauthn_verify_credential_info_fails_if_credential_id_already_exists(
         credential_device_type="single_device",
         credential_backed_up=False,
     )
-    with mock.patch("kagi.views.api.webauthn.verify_registration_response", return_value = fake_validated_credential) as mocked_verify_registration_response:
+    with mock.patch(
+        "kagi.views.api.webauthn.verify_registration_response",
+        return_value=fake_validated_credential,
+    ) as mocked_verify_registration_response:
         response = admin_client.post(
             reverse("kagi:verify-credential-info"), {"credentials": "fake_payload"}
         )
 
     assert response.status_code == 400
     assert response.json() == {"fail": "Credential ID already exists."}
+
+
+# Testing view begin assertion
+@pytest.mark.django_db
+def test_begin_assertion_return_user_credential_options(client):
+    # We need to create a couple of WebAuthnKey for our user.
+    user = User.objects.create_user("admin", "john.doe@kagi.com", "admin")
+    user.webauthn_keys.create(
+        key_name="SoloKey 1",
+        sign_count=0,
+        credential_id=bytes_to_base64url(b"credential-id-1"),
+        public_key=bytes_to_base64url(b"pubkey1"),
+    )
+    user.webauthn_keys.create(
+        key_name="SoloKey 2",
+        sign_count=0,
+        credential_id=bytes_to_base64url(b"credential-id-2"),
+        public_key=bytes_to_base64url(b"pubkey2"),
+    )
+
+    challenge = b"k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
+
+    assertion_dict = {
+        "challenge": bytes_to_base64url(challenge),
+        "timeout": 60000,
+        "rpId": "localhost",
+        "allowCredentials": [
+            {
+                "id": bytes_to_base64url(b"credential-id-1"),
+                "type": "public-key",
+                "transports": ["usb", "nfc", "ble", "internal"],
+            },
+            {
+                "id": bytes_to_base64url(b"credential-id-2"),
+                "type": "public-key",
+                "transports": ["usb", "nfc", "ble", "internal"],
+            },
+        ],
+        "userVerification": "discouraged",
+    }
+
+    # We authenticate with username/password
+    response = client.post(
+        reverse("kagi:login"), {"username": "admin", "password": "admin"}
+    )
+    assert response.status_code == 302
+    assert response.url == reverse("kagi:verify-second-factor")
+
+    with mock.patch("kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge):
+        response = client.post(reverse("kagi:begin-assertion"))
+
+    assert response.status_code == 200
+    assert response.json() == assertion_dict

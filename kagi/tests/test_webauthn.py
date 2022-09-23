@@ -124,11 +124,13 @@ def test_verify_assertion_response(monkeypatch):
     )
 
     not_a_real_user = pretend.stub(
-        webauthn_keys=[
-            pretend.stub(
-                public_key=bytes_to_base64url(b"fake public key"), sign_count=68
-            )
-        ]
+        webauthn_keys=pretend.stub(
+            all=lambda: [
+                pretend.stub(
+                    public_key=bytes_to_base64url(b"fake public key"), sign_count=68
+                )
+            ]
+        )
     )
     resp = webauthn.verify_assertion_response(
         (
