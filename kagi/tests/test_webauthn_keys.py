@@ -6,8 +6,20 @@ from django.urls import reverse
 
 import pytest
 from kagi.utils import webauthn
+from webauthn.authentication.verify_authentication_response import (
+    VerifiedAuthentication,
+)
 from webauthn.helpers import bytes_to_base64url
 from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
+from webauthn.registration.verify_registration_response import VerifiedRegistration
+from webauthn.helpers.structs import (
+    AttestationFormat,
+    AuthenticationCredential,
+    AuthenticatorAssertionResponse,
+    AuthenticatorAttestationResponse,
+    PublicKeyCredentialType,
+    RegistrationCredential,
+)
 from webauthn.registration.verify_registration_response import VerifiedRegistration
 
 from .. import settings
@@ -221,3 +233,91 @@ def test_begin_assertion_return_user_credential_options(client):
 
     assert response.status_code == 200
     assert response.json() == assertion_dict
+
+
+# Testing view verify assertion
+@pytest.mark.django_db
+def test_verify_assertion_validates_the_user_webauthn_key(client):
+    # We need to create a couple of WebAuthnKey for our user.
+    user = User.objects.create_user("admin", "john.doe@kagi.com", "admin")
+    user.webauthn_keys.create(
+        key_name="SoloKey",
+        sign_count=0,
+        credential_id=bytes_to_base64url(b"credential-id"),
+        public_key=bytes_to_base64url(b"pubkey"),
+    )
+    response = client.post(
+        reverse("kagi:login"), {"username": "admin", "password": "admin"}
+    )
+    assert response.status_code == 302
+    assert response.url == reverse("kagi:verify-second-factor")
+
+    response = client.get(reverse("kagi:verify-second-factor"))
+    assert response.status_code == 200
+
+    # We authenticate with username/password
+    challenge = b"k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
+
+    with mock.patch("kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge):
+        response = client.post(reverse("kagi:begin-assertion"))
+
+    fake_verified_authentication = VerifiedAuthentication(
+        credential_id=b"credential-id",
+        new_sign_count=69,
+        credential_device_type="single_device",
+        credential_backed_up=False,
+    )
+    with mock.patch("kagi.views.api.webauthn.verify_assertion_response", return_value=fake_verified_authentication):
+
+        response = client.post(
+            reverse("kagi:verify-assertion"),
+            {"credentials": json.dumps({"fake": "payload"})},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": "Successfully authenticated as admin",
+        "redirect_to": reverse("kagi:two-factor-settings"),
+    }
+
+
+@pytest.mark.django_db
+def test_verify_assertion_validates_the_assertion(client):
+    # We need to create a couple of WebAuthnKey for our user.
+    user = User.objects.create_user("admin", "john.doe@kagi.com", "admin")
+    user.webauthn_keys.create(
+        key_name="SoloKey",
+        sign_count=0,
+        credential_id=bytes_to_base64url(b"credential-id"),
+        public_key=bytes_to_base64url(b"pubkey"),
+    )
+    response = client.post(
+        reverse("kagi:login"), {"username": "admin", "password": "admin"}
+    )
+    assert response.status_code == 302
+    assert response.url == reverse("kagi:verify-second-factor")
+
+    # We authenticate with username/password
+    challenge = b"k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
+
+    with mock.patch("kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge):
+        response = client.post(reverse("kagi:begin-assertion"))
+
+    with mock.patch("kagi.views.api.webauthn.AuthenticationCredential.parse_raw", return_value=AuthenticationCredential(
+            id="foo",
+            raw_id=b"~\x8a",
+            response=AuthenticatorAssertionResponse(
+                client_data_json=b'{"type": "webauthn.get", "challenge": "", "origin": "localhost"}',
+                authenticator_data=b"~\x8a",
+                signature=b"\xc2\xebZ\x9e",
+                user_handle=None,
+            ),
+            type=PublicKeyCredentialType.PUBLIC_KEY,
+    )):
+        response = client.post(
+            reverse("kagi:verify-assertion"),
+            {"credentials": json.dumps({"fake": "payload"})},
+        )
+
+    assert response.status_code == 400
+    assert response.json() == {'fail': 'Assertion failed. Error: Invalid WebAuthn credential'}

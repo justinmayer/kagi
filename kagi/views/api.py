@@ -110,18 +110,11 @@ def webauthn_begin_assertion(request):
 def webauthn_verify_assertion(request):
     challenge = base64url_to_bytes(request.session.get("challenge"))
 
-    try:
-        credentials = json.loads(request.POST["credentials"])
-    except json.JSONDecodeError:
-        return JsonResponse(
-            {"fail": "Invalid WebAuthn assertion: Bad payload"}, status=400
-        )
-
     user = utils.get_user(request)
 
     try:
-        webauthn_assertion_response = webauthn.verify_webauthn_assertion(
-            assertion,
+        webauthn_assertion_response = webauthn.verify_assertion_response(
+            request.POST["credentials"],
             challenge=challenge,
             user=user,
             origin=utils.get_origin(request),
@@ -131,6 +124,7 @@ def webauthn_verify_assertion(request):
         return JsonResponse({"fail": f"Assertion failed. Error: {e}"}, status=400)
 
     # Update counter.
+    key = user.webauthn_keys.get(credential_id=bytes_to_base64url(webauthn_assertion_response.credential_id))
     key.sign_count = webauthn_assertion_response.new_sign_count
     key.last_used = now()
     key.save()
@@ -154,7 +148,7 @@ def webauthn_verify_assertion(request):
 
     return JsonResponse(
         {
-            "success": f"Successfully authenticated as {username}",
+            "success": f"Successfully authenticated as {user.get_username()}",
             "redirect_to": redirect_to,
         }
     )
