@@ -59,9 +59,7 @@ def test_totp_device_deletion_works(admin_client):
 
 # Testing view begin activate
 def test_begin_activate_return_user_credential_options(admin_client):
-    response = admin_client.post(
-        reverse("kagi:begin-activate"), {"key_name": "SoloKey"}
-    )
+    response = admin_client.get(reverse("kagi:begin-activate"))
 
     assert response.status_code == 200
     credential_options = response.json()
@@ -79,18 +77,10 @@ def test_begin_activate_return_user_credential_options(admin_client):
     assert "pubKeyCredParams" in credential_options
 
 
-def test_begin_activate_fails_if_key_name_is_missing(admin_client):
-    response = admin_client.post(reverse("kagi:begin-activate"), {"key_name": ""})
-    assert response.status_code == 400
-    assert response.json() == {"errors": {"key_name": ["This field is required."]}}
-
-
 # Testing view verify credential info
 def test_webauthn_verify_credential_info(admin_client):
     # Setup the session
-    response = admin_client.post(
-        reverse("kagi:begin-activate"), {"key_name": "SoloKey"}
-    )
+    response = admin_client.get(reverse("kagi:begin-activate"))
 
     fake_validated_credential = VerifiedRegistration(
         credential_id=b"foo",
@@ -109,7 +99,8 @@ def test_webauthn_verify_credential_info(admin_client):
         return_value=fake_validated_credential,
     ) as mocked_verify_registration_response:
         response = admin_client.post(
-            reverse("kagi:verify-credential-info"), {"credentials": "fake_payload"}
+            reverse("kagi:verify-credential-info"),
+            {"credentials": "fake_payload", "key_name": "SoloKey"},
         )
 
     assert mocked_verify_registration_response.called_once
@@ -120,9 +111,7 @@ def test_webauthn_verify_credential_info(admin_client):
 
 def test_webauthn_verify_credential_info_fails_if_registration_is_invalid(admin_client):
     # Setup the session
-    response = admin_client.post(
-        reverse("kagi:begin-activate"), {"key_name": "SoloKey"}
-    )
+    response = admin_client.get(reverse("kagi:begin-activate"))
 
     with mock.patch(
         "kagi.views.api.webauthn.verify_registration_response"
@@ -132,7 +121,8 @@ def test_webauthn_verify_credential_info_fails_if_registration_is_invalid(admin_
         )
 
         response = admin_client.post(
-            reverse("kagi:verify-credential-info"), {"credentials": "payload"}
+            reverse("kagi:verify-credential-info"),
+            {"credentials": "payload", "key_name": "SoloKey"},
         )
 
     assert response.status_code == 400
@@ -143,9 +133,7 @@ def test_webauthn_verify_credential_info_fails_if_credential_id_already_exists(
     admin_client,
 ):
     # Setup the session
-    response = admin_client.post(
-        reverse("kagi:begin-activate"), {"key_name": "SoloKey"}
-    )
+    response = admin_client.get(reverse("kagi:begin-activate"))
 
     # Create the WebAuthnKey
     user = User.objects.get(pk=1)
@@ -170,11 +158,26 @@ def test_webauthn_verify_credential_info_fails_if_credential_id_already_exists(
         return_value=fake_validated_credential,
     ):
         response = admin_client.post(
-            reverse("kagi:verify-credential-info"), {"credentials": "fake_payload"}
+            reverse("kagi:verify-credential-info"),
+            {"credentials": "fake_payload", "key_name": "Solo key"},
         )
 
     assert response.status_code == 400
     assert response.json() == {"fail": "Credential ID already exists."}
+
+
+def test_webauthn_verify_credential_info_fails_if_key_name_is_missing(
+    admin_client,
+):
+    # Setup the session
+    response = admin_client.get(reverse("kagi:begin-activate"))
+
+    response = admin_client.post(
+        reverse("kagi:verify-credential-info"), {"credentials": "fake_payload"}
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"errors": {"key_name": ["This field is required."]}}
 
 
 # Testing view begin assertion
@@ -226,7 +229,7 @@ def test_begin_assertion_return_user_credential_options(client):
     with mock.patch(
         "kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge
     ):
-        response = client.post(reverse("kagi:begin-assertion"))
+        response = client.get(reverse("kagi:begin-assertion"))
 
     assert response.status_code == 200
     assert response.json() == assertion_dict
@@ -258,7 +261,7 @@ def test_verify_assertion_validates_the_user_webauthn_key(client):
     with mock.patch(
         "kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge
     ):
-        response = client.post(reverse("kagi:begin-assertion"))
+        response = client.get(reverse("kagi:begin-assertion"))
 
     fake_verified_authentication = VerifiedAuthentication(
         credential_id=b"credential-id",
@@ -305,7 +308,7 @@ def test_verify_assertion_validates_the_assertion(client):
     with mock.patch(
         "kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge
     ):
-        response = client.post(reverse("kagi:begin-assertion"))
+        response = client.get(reverse("kagi:begin-assertion"))
 
     with mock.patch(
         "kagi.views.api.webauthn.AuthenticationCredential.parse_raw",

@@ -19,16 +19,10 @@ from ..utils import webauthn
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 def webauthn_begin_activate(request):
-    form = KeyRegistrationForm(request.POST)
-
-    if not form.is_valid():
-        return JsonResponse({"errors": form.errors}, status=400)
-
     challenge = webauthn.generate_webauthn_challenge()
 
-    request.session["key_name"] = form.cleaned_data["key_name"]
     request.session["challenge"] = bytes_to_base64url(challenge)
 
     credential_options = webauthn.get_credential_options(
@@ -47,6 +41,11 @@ def webauthn_begin_activate(request):
 def webauthn_verify_credential_info(request):
     challenge = base64url_to_bytes(request.session["challenge"])
     credentials = request.POST["credentials"]
+
+    form = KeyRegistrationForm(request.POST)
+
+    if not form.is_valid():
+        return JsonResponse({"errors": form.errors}, status=400)
 
     try:
         webauthn_registration_response = webauthn.verify_registration_response(
@@ -73,7 +72,7 @@ def webauthn_verify_credential_info(request):
 
     WebAuthnKey.objects.create(
         user=request.user,
-        key_name=request.session.get("key_name", ""),
+        key_name=form.cleaned_data["key_name"],
         public_key=bytes_to_base64url(
             webauthn_registration_response.credential_public_key
         ),
@@ -91,7 +90,7 @@ def webauthn_verify_credential_info(request):
 
 
 # Login
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 def webauthn_begin_assertion(request):
     challenge = webauthn.generate_webauthn_challenge()
     request.session["challenge"] = bytes_to_base64url(challenge)

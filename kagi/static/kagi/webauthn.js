@@ -1,320 +1,261 @@
-function b64enc(buf) {
-    return base64js.fromByteArray(buf)
-                   .replace(/\+/g, "-")
-                   .replace(/\//g, "_")
-                   .replace(/=/g, "");
-}
-
-function b64RawEnc(buf) {
-    return base64js.fromByteArray(buf)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-}
-
-function hexEncode(buf) {
-    return Array.from(buf)
-                .map(function(x) {
-                    return ("0" + x.toString(16)).substr(-2);
-				})
-                .join("");
-}
-
-async function fetch_json(url, options) {
-    const response = await fetch(url, options);
-    const body = await response.json();
-    if (body.fail)
-        throw body.fail;
-    return body;
-}
-
-if (typeof window.Kagi === 'undefined') {
-  let Kagi = window.Kagi || {
-    begin_activate: '/kagi/api/begin-activate/',
-    begin_assertion: '/kagi/api/begin-assertion/',
-    verify_credential_info: '/kagi/api/verify-credential-info/',
-    verify_assertion: '/kagi/api/verify-assertion/',
-    keys_list: '/kagi/keys/',
-  };
-  console.error("window.Kagi is not defined, falling back to default URLs", Kagi);
-
-}
-
-
-/**
- * REGISTRATION FUNCTIONS
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-/**
- * Callback after the registration form is submitted.
- * @param {Event} e
- */
-const didClickRegister = async (e) => {
-    e.preventDefault();
 
-    // gather the data in the form
-    const form = document.querySelector('#register-form');
-    const formData = new FormData(form);
+const populateWebAuthnErrorList = (errors) => {
+  const errorList = document.getElementById("webauthn-errors");
+  if (errorList === null) {
+    return;
+  }
 
-    // post the data to the server to generate the PublicKeyCredentialCreateOptions
-    let credentialCreateOptionsFromServer;
-    try {
-        credentialCreateOptionsFromServer = await getCredentialCreateOptionsFromServer(formData);
-    } catch (err) {
-        return console.error("Failed to generate credential request options:", credentialCreateOptionsFromServer)
-    }
+  /* NOTE: We only set the alert role once we actually have errors to present,
+   * to avoid hijacking screenreaders unnecessarily.
+   */
+  errorList.setAttribute("role", "alert");
 
-    // convert certain members of the PublicKeyCredentialCreateOptions into
-    // byte arrays as expected by the spec.
-    const publicKeyCredentialCreateOptions = transformCredentialCreateOptions(credentialCreateOptionsFromServer);
+  errors.forEach((error) => {
+    const errorItem = document.createElement("li");
+    errorItem.appendChild(document.createTextNode(error));
+    errorList.appendChild(errorItem);
+  });
+};
 
-    // request the authenticator(s) to create a new credential keypair.
-    let credential;
-    try {
-        credential = await navigator.credentials.create({
-            publicKey: publicKeyCredentialCreateOptions
-        });
-    } catch (err) {
-        return console.error("Error creating credential:", err);
-    }
+const doWebAuthn = (formId, func) => {
+  if (!window.PublicKeyCredential) {
+    return;
+  }
 
-    // we now have a new credential! We now need to encode the byte arrays
-    // in the credential into strings, for posting to our server.
-    const newAssertionForServer = transformNewAssertionForServer(credential);
+  const webAuthnForm = document.getElementById(formId);
+  if (webAuthnForm === null) {
+    return null;
+  }
 
-    // post the transformed credential data to the server for validation
-    // and storing the public key
-    let assertionValidationResponse;
-    try {
-        assertionValidationResponse = await postNewAssertionToServer(newAssertionForServer);
-    } catch (err) {
-        return console.error("Server validation of credential failed:", err);
-    }
+  const webAuthnButton = webAuthnForm.querySelector("button[type=submit]");
+  webAuthnButton.disabled = false;
 
-    // reload the page after a successful result
-    window.location.href = Kagi.keys_list;
-}
+  webAuthnForm.addEventListener("submit", async() => {
+    func(webAuthnButton.value);
+    event.preventDefault();
+  });
+};
 
-/**
- * Get PublicKeyCredentialRequestOptions for this user from the server
- * formData of the registration form
- * @param {FormData} formData
- */
-const getCredentialRequestOptionsFromServer = async (formData) => {
-    return await fetch_json(
-        Kagi.begin_assertion,
-        {
-            method: "POST",
-            body: formData
-        }
-    );
-}
+const webAuthnBtoA = (encoded) => {
+  return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+};
 
-const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) => {
-  let {challenge, allowCredentials} = credentialRequestOptionsFromServer;
-  challenge = Uint8Array.from(atob(challenge), c => c.charCodeAt(0));
+const webAuthnBase64Normalize = (encoded) => {
+  return encoded.replace(/_/g, "/").replace(/-/g, "+");
+};
 
+const transformAssertionOptions = (assertionOptions) => {
+  let {challenge, allowCredentials} = assertionOptions;
+
+  challenge = Uint8Array.from(challenge, c => c.charCodeAt(0));
   allowCredentials = allowCredentials.map(credentialDescriptor => {
     let {id} = credentialDescriptor;
-    id = id.replace(/\_/g, "/").replace(/\-/g, "+");
+    id = webAuthnBase64Normalize(id);
     id = Uint8Array.from(atob(id), c => c.charCodeAt(0));
     return Object.assign({}, credentialDescriptor, {id});
   });
 
-  const transformedCredentialRequestOptions = Object.assign(
+  const transformedOptions = Object.assign(
     {},
-    credentialRequestOptionsFromServer,
+    assertionOptions,
     {challenge, allowCredentials});
 
-  return transformedCredentialRequestOptions;
+  return transformedOptions;
 };
 
+const transformAssertion = (assertion) => {
+  const authData = new Uint8Array(assertion.response.authenticatorData);
+  const clientDataJSON = new Uint8Array(assertion.response.clientDataJSON);
+  const rawId = new Uint8Array(assertion.rawId);
+  const sig = new Uint8Array(assertion.response.signature);
+  const assertionClientExtensions = assertion.getClientExtensionResults();
 
-/**
- * Get PublicKeyCredentialRequestOptions for this user from the server
- * formData of the registration form
- * @param {FormData} formData
- */
-const getCredentialCreateOptionsFromServer = async (formData) => {
-    return await fetch_json(
-        Kagi.begin_activate,
-        {
-            method: "POST",
-            body: formData
-        }
+  return {
+    id: assertion.id,
+    rawId: webAuthnBtoA(String.fromCharCode(...rawId)),
+    response: {
+      authenticatorData: webAuthnBtoA(String.fromCharCode(...authData)),
+      clientDataJSON: webAuthnBtoA(String.fromCharCode(...clientDataJSON)),
+      signature: webAuthnBtoA(String.fromCharCode(...sig)),
+    },
+    type: assertion.type,
+    assertionClientExtensions: JSON.stringify(assertionClientExtensions),
+  };
+};
+
+const transformCredentialOptions = (credentialOptions) => {
+  let {challenge, user} = credentialOptions;
+  user.id = Uint8Array.from(credentialOptions.user.id, c => c.charCodeAt(0));
+  challenge = Uint8Array.from(credentialOptions.challenge, c => c.charCodeAt(0));
+
+  const transformedOptions = Object.assign({}, credentialOptions, {challenge, user});
+
+  return transformedOptions;
+};
+
+const transformCredential = (credential) => {
+  const attObj = new Uint8Array(credential.response.attestationObject);
+  const clientDataJSON = new Uint8Array(credential.response.clientDataJSON);
+  const rawId = new Uint8Array(credential.rawId);
+  const registrationClientExtensions = credential.getClientExtensionResults();
+
+  return {
+    id: credential.id,
+    rawId: webAuthnBtoA(String.fromCharCode(...rawId)),
+    type: credential.type,
+    response: {
+      attestationObject: webAuthnBtoA(String.fromCharCode(...attObj)),
+      clientDataJSON: webAuthnBtoA(String.fromCharCode(...clientDataJSON)),
+    },
+    registrationClientExtensions: JSON.stringify(registrationClientExtensions),
+  };
+};
+
+const postCredential = async (keyName, credential, token) => {
+  const formData = new FormData();
+  formData.set("key_name", keyName);
+  formData.set("credentials", JSON.stringify(credential));
+  formData.set("csrf_token", token);
+
+  const resp = await fetch(
+    "/kagi/api/verify-credential-info/", {
+      method: "POST",
+      cache: "no-cache",
+      body: formData,
+      credentials: "same-origin",
+    }
+  );
+
+  return await resp.json();
+};
+
+const postAssertion = async (assertion, token) => {
+  const formData = new FormData();
+  formData.set("credentials", JSON.stringify(assertion));
+  formData.set("csrf_token", token);
+
+  const resp = await fetch(
+    "/kagi/api/verify-assertion/" + window.location.search, {
+      method: "POST",
+      cache: "no-cache",
+      body: formData,
+      credentials: "same-origin",
+    }
+  );
+
+  return await resp.json();
+};
+
+const GuardWebAuthn = () => {
+  if (!window.PublicKeyCredential) {
+    let webauthn_button = document.getElementById("webauthn-button");
+    if (webauthn_button) {
+      webauthn_button.className += " button--disabled";
+    }
+
+    let webauthn_error = document.getElementById("webauthn-browser-support");
+    if (webauthn_error) {
+      webauthn_error.style.display = "block";
+    }
+
+    let webauthn_label = document.getElementById("webauthn-provision-label");
+    if (webauthn_label) {
+      webauthn_label.disabled = true;
+    }
+  }
+};
+
+const ProvisionWebAuthn = () => {
+  doWebAuthn("webauthn-provision-form", async (csrfToken) => {
+    const label = document.getElementById("id_key_name").value;
+
+    const resp = await fetch(
+      "/kagi/api/begin-activate/", {
+        cache: "no-cache",
+        credentials: "same-origin",
+      }
     );
-}
 
-/**
- * Transforms items in the credentialCreateOptions generated on the server
- * into byte arrays expected by the navigator.credentials.create() call
- * @param {Object} credentialCreateOptionsFromServer
- */
-const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => {
-    let {challenge, user} = credentialCreateOptionsFromServer;
-    user.id = Uint8Array.from(
-        atob(credentialCreateOptionsFromServer.user.id), c => c.charCodeAt(0));
+    const credentialOptions = await resp.json();
+    const transformedOptions = transformCredentialOptions(credentialOptions);
+    await navigator.credentials.create({
+      publicKey: transformedOptions,
+    }).then(async (credential) => {
+      const transformedCredential = transformCredential(credential);
 
-    challenge = Uint8Array.from(
-        atob(credentialCreateOptionsFromServer.challenge), c => c.charCodeAt(0));
+      const status = await postCredential(label, transformedCredential, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
 
-    const transformedCredentialCreateOptions = Object.assign(
-            {}, credentialCreateOptionsFromServer,
-            {challenge, user});
-
-    return transformedCredentialCreateOptions;
-}
-
-
-
-/**
- * AUTHENTICATION FUNCTIONS
- */
-
-
-/**
- * Callback executed after submitting login form
- * @param {Event} e
- */
-const didClickLogin = async (e) => {
-  console.log("Login clicked");
-  document.getElementById("webauthn-error").innerHTML = "";
-    e.preventDefault();
-    // gather the data in the form
-    const form = document.querySelector('#login-form');
-    const formData = new FormData(form);
-
-    // post the login data to the server to retrieve the PublicKeyCredentialRequestOptions
-    let credentialCreateOptionsFromServer;
-    try {
-        credentialRequestOptionsFromServer = await getCredentialRequestOptionsFromServer(formData);
-    } catch (err) {
-        return console.error("Error when getting request options from server:", err);
-    }
-
-    // convert certain members of the PublicKeyCredentialRequestOptions into
-    // byte arrays as expected by the spec.
-    const transformedCredentialRequestOptions = transformCredentialRequestOptions(
-        credentialRequestOptionsFromServer);
-
-    // request the authenticator to create an assertion signature using the
-    // credential private key
-    let assertion;
-    try {
-        assertion = await navigator.credentials.get({
-            publicKey: transformedCredentialRequestOptions,
-        });
-    } catch (err) {
-        document.getElementById("webauthn-error").innerHTML = "Connection failed during credential creation.";
-        return console.error("Error when creating credential:", err);
-    }
-    // we now have an authentication assertion! encode the byte arrays contained
-    // in the assertion data as strings for posting to the server
-    const transformedAssertionForServer = transformAssertionForServer(assertion);
-
-    // post the assertion to the server for verification.
-    let response;
-    try {
-        response = await postAssertionToServer(transformedAssertionForServer);
-    } catch (err) {
-        document.getElementById("webauthn-error").innerHTML = "Error when validating assertion on server.";
-        return console.error("Error when validating assertion on server:", err);
-    }
-
-    window.location.href = response["redirect_to"];
+      window.location.replace("/kagi/keys/");
+    }).catch((error) => {
+        console.log(error);
+      populateWebAuthnErrorList([error.message]);
+      return;
+    });
+  });
 };
 
-/**
- * Transforms the binary data in the credential into base64 strings
- * for posting to the server.
- * @param {PublicKeyCredential} newAssertion
- */
-const transformNewAssertionForServer = (newAssertion) => {
-    const attObj = new Uint8Array(
-        newAssertion.response.attestationObject);
-    const clientDataJSON = new Uint8Array(
-        newAssertion.response.clientDataJSON);
-    const rawId = new Uint8Array(
-        newAssertion.rawId);
+const AuthenticateWebAuthn = () => {
+  doWebAuthn("webauthn-auth-form", async (csrfToken) => {
+    const resp = await fetch(
+      "/kagi/api/begin-assertion/" + window.location.search, {
+        cache: "no-cache",
+        credentials: "same-origin",
+      }
+    );
 
-    const registrationClientExtensions = newAssertion.getClientExtensionResults();
+    const assertionOptions = await resp.json();
+    if (assertionOptions.fail) {
+      window.location.replace("/account/login");
+      return;
+    }
 
-    return {
-        id: newAssertion.id,
-        rawId: b64enc(rawId),
-        type: newAssertion.type,
-        attObj: b64enc(attObj),
-        clientData: b64enc(clientDataJSON),
-        registrationClientExtensions: JSON.stringify(registrationClientExtensions)
-    };
-}
+    const transformedOptions = transformAssertionOptions(assertionOptions);
+    await navigator.credentials.get({
+      publicKey: transformedOptions,
+    }).then(async (assertion) => {
+      const transformedAssertion = transformAssertion(assertion);
 
-/**
- * Posts the new credential data to the server for validation and storage.
- * @param {Object} credentialDataForServer
- */
-const postNewAssertionToServer = async (credentialDataForServer) => {
-    const formData = new FormData();
-    Object.entries(credentialDataForServer).forEach(([key, value]) => {
-        formData.set(key, value);
+      const status = await postAssertion(transformedAssertion, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
+
+      window.location.replace(status.redirect_to);
+    }).catch((error) => {
+      populateWebAuthnErrorList([error.message]);
+      return;
     });
-
-    return await fetch_json(
-        Kagi.verify_credential_info, {
-        method: "POST",
-        body: formData
-    });
-}
-
-/**
- * Encodes the binary data in the assertion into strings for posting to the server.
- * @param {PublicKeyCredential} newAssertion
- */
-const transformAssertionForServer = (newAssertion) => {
-    const authData = new Uint8Array(newAssertion.response.authenticatorData);
-    const clientDataJSON = new Uint8Array(newAssertion.response.clientDataJSON);
-    const rawId = new Uint8Array(newAssertion.rawId);
-    const sig = new Uint8Array(newAssertion.response.signature);
-    const assertionClientExtensions = newAssertion.getClientExtensionResults();
-
-    return {
-        id: newAssertion.id,
-        rawId: b64enc(rawId),
-        type: newAssertion.type,
-        authData: b64RawEnc(authData),
-        clientData: b64RawEnc(clientDataJSON),
-        signature: hexEncode(sig),
-        assertionClientExtensions: JSON.stringify(assertionClientExtensions)
-    };
+  });
 };
-
-/**
- * Post the assertion to the server for validation and logging the user in.
- * @param {Object} assertionDataForServer
- */
-const postAssertionToServer = async (assertionDataForServer) => {
-    const form = document.querySelector('#login-form');
-    const formData = new FormData(form);
-    Object.entries(assertionDataForServer).forEach(([key, value]) => {
-        formData.set(key, value);
-    });
-
-    return await fetch_json(
-        Kagi.verify_assertion, {
-        method: "POST",
-        body: formData
-    });
-}
 
 
 document.addEventListener("DOMContentLoaded", e => {
-  const registerElement = document.querySelector('#register');
+  const registerElement = document.querySelector('#webauthn-provision-form');
   if (registerElement) {
-    registerElement.addEventListener('click', didClickRegister);
+      ProvisionWebAuthn();
   }
 
-  const loginElement = document.querySelector('#login');
-  if (loginElement) {
-      loginElement.addEventListener('click', didClickLogin);
+  const loginElement = document.querySelector('#webauthn-auth-form');
+    if (loginElement) {
+        AuthenticateWebAuthn();
   }
   // If browser doesn't support WebAuthn, hide related elements and show warning
   if (typeof(PublicKeyCredential) == "undefined") {
