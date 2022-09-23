@@ -14,7 +14,6 @@ import base64
 import json
 
 import webauthn as pywebauthn
-
 from webauthn.helpers import base64url_to_bytes, generate_challenge
 from webauthn.helpers.exceptions import (
     InvalidAuthenticationResponse,

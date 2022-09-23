@@ -5,22 +5,19 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 import pytest
-from kagi.utils import webauthn
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )
 from webauthn.helpers import bytes_to_base64url
-from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
-from webauthn.registration.verify_registration_response import VerifiedRegistration
 from webauthn.helpers.structs import (
     AttestationFormat,
     AuthenticationCredential,
     AuthenticatorAssertionResponse,
-    AuthenticatorAttestationResponse,
     PublicKeyCredentialType,
-    RegistrationCredential,
 )
 from webauthn.registration.verify_registration_response import VerifiedRegistration
+
+from kagi.utils import webauthn
 
 from .. import settings
 from ..forms import KeyRegistrationForm
@@ -94,8 +91,6 @@ def test_webauthn_verify_credential_info(admin_client):
     response = admin_client.post(
         reverse("kagi:begin-activate"), {"key_name": "SoloKey"}
     )
-    credential_options = response.json()
-    challenge = credential_options["challenge"]
 
     fake_validated_credential = VerifiedRegistration(
         credential_id=b"foo",
@@ -173,7 +168,7 @@ def test_webauthn_verify_credential_info_fails_if_credential_id_already_exists(
     with mock.patch(
         "kagi.views.api.webauthn.verify_registration_response",
         return_value=fake_validated_credential,
-    ) as mocked_verify_registration_response:
+    ):
         response = admin_client.post(
             reverse("kagi:verify-credential-info"), {"credentials": "fake_payload"}
         )
@@ -228,7 +223,9 @@ def test_begin_assertion_return_user_credential_options(client):
     assert response.status_code == 302
     assert response.url == reverse("kagi:verify-second-factor")
 
-    with mock.patch("kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge):
+    with mock.patch(
+        "kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge
+    ):
         response = client.post(reverse("kagi:begin-assertion"))
 
     assert response.status_code == 200
@@ -258,7 +255,9 @@ def test_verify_assertion_validates_the_user_webauthn_key(client):
     # We authenticate with username/password
     challenge = b"k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
 
-    with mock.patch("kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge):
+    with mock.patch(
+        "kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge
+    ):
         response = client.post(reverse("kagi:begin-assertion"))
 
     fake_verified_authentication = VerifiedAuthentication(
@@ -267,7 +266,10 @@ def test_verify_assertion_validates_the_user_webauthn_key(client):
         credential_device_type="single_device",
         credential_backed_up=False,
     )
-    with mock.patch("kagi.views.api.webauthn.verify_assertion_response", return_value=fake_verified_authentication):
+    with mock.patch(
+        "kagi.views.api.webauthn.verify_assertion_response",
+        return_value=fake_verified_authentication,
+    ):
 
         response = client.post(
             reverse("kagi:verify-assertion"),
@@ -300,10 +302,14 @@ def test_verify_assertion_validates_the_assertion(client):
     # We authenticate with username/password
     challenge = b"k31d65xGDFb0VUq4MEMXmWpuWkzPs889"
 
-    with mock.patch("kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge):
+    with mock.patch(
+        "kagi.views.api.webauthn.generate_webauthn_challenge", return_value=challenge
+    ):
         response = client.post(reverse("kagi:begin-assertion"))
 
-    with mock.patch("kagi.views.api.webauthn.AuthenticationCredential.parse_raw", return_value=AuthenticationCredential(
+    with mock.patch(
+        "kagi.views.api.webauthn.AuthenticationCredential.parse_raw",
+        return_value=AuthenticationCredential(
             id="foo",
             raw_id=b"~\x8a",
             response=AuthenticatorAssertionResponse(
@@ -313,11 +319,14 @@ def test_verify_assertion_validates_the_assertion(client):
                 user_handle=None,
             ),
             type=PublicKeyCredentialType.PUBLIC_KEY,
-    )):
+        ),
+    ):
         response = client.post(
             reverse("kagi:verify-assertion"),
             {"credentials": json.dumps({"fake": "payload"})},
         )
 
     assert response.status_code == 400
-    assert response.json() == {'fail': 'Assertion failed. Error: Invalid WebAuthn credential'}
+    assert response.json() == {
+        "fail": "Assertion failed. Error: Invalid WebAuthn credential"
+    }

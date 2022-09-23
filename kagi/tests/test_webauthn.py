@@ -13,7 +13,6 @@
 import pretend
 import pytest
 import webauthn as pywebauthn
-
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )

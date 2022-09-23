@@ -8,12 +8,12 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from webauthn.helpers import bytes_to_base64url, base64url_to_bytes
-import json
+from webauthn.helpers import base64url_to_bytes, bytes_to_base64url
+
 from .. import settings, utils
-from ..utils import webauthn
 from ..forms import KeyRegistrationForm
 from ..models import WebAuthnKey
+from ..utils import webauthn
 
 # Registration
 
@@ -124,7 +124,9 @@ def webauthn_verify_assertion(request):
         return JsonResponse({"fail": f"Assertion failed. Error: {e}"}, status=400)
 
     # Update counter.
-    key = user.webauthn_keys.get(credential_id=bytes_to_base64url(webauthn_assertion_response.credential_id))
+    key = user.webauthn_keys.get(
+        credential_id=bytes_to_base64url(webauthn_assertion_response.credential_id)
+    )
     key.sign_count = webauthn_assertion_response.new_sign_count
     key.last_used = now()
     key.save()
