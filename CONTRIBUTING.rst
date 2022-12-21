@@ -9,7 +9,7 @@ Quick Set-up
 
 First, install Poetry_::
 
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+    curl -sSL https://install.python-poetry.org/ | python -
 
 Go to the `Kagi repository`_ on GitHub and tap the **Fork** button at top-right.
 Then clone the source for your fork and add the upstream project as a Git remote::
@@ -33,7 +33,7 @@ Detailed Set-up
 
 The first step is to install Poetry_::
 
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+    curl -sSL https://install.python-poetry.org/ | python -
 
 Next, install Pre-commit_. Here we will install Pipx_ and use it to install Pre-commit_::
 
