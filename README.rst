@@ -8,7 +8,7 @@ Kagi
     :target: https://github.com/justinmayer/kagi/blob/master/CODE_OF_CONDUCT.rst
     :alt: Code of Conduct
 
-.. |build-status| image:: https://img.shields.io/github/workflow/status/justinmayer/kagi/build
+.. |build-status| image:: https://img.shields.io/github/actions/workflow/status/justinmayer/kagi/main.yml?branch=main
     :target: https://github.com/justinmayer/kagi/actions
     :alt: Build Status
 
