@@ -1,9 +1,12 @@
-name: build
+name: CI
 
 on: [push, pull_request]
 
 env:
-  PYTEST_ADDOPTS: "--color=yes"
+  FORCE_COLOR: "1" # Make tools pretty.
+  TOX_TESTENV_PASSENV: FORCE_COLOR
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
 
 jobs:
   test:
@@ -101,35 +104,36 @@ jobs:
       - name: Run linters
         run: poetry run invoke lint
 
-
-  deploy:
-    name: Deploy
+  prep-release:
+    name: Release preparations
     environment: Deployment
     needs: [test, lint]
     runs-on: ubuntu-latest
     if: ${{ github.ref=='refs/heads/main' && github.event_name!='pull_request' }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.8"
       - name: Check release
         id: check_release
         run: |
           python -m pip install --upgrade pip
-          python -m pip install poetry githubrelease httpx==0.16.1 autopub
-          echo "##[set-output name=release;]$(autopub check)"
-      - name: Publish
+          python -m pip install poetry autopub[github]
+          echo "release=$(autopub check)" >> "$GITHUB_OUTPUT"
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "release<<$EOF" >> "$GITHUB_OUTPUT"
+          autopub check >> "$GITHUB_OUTPUT"
+          echo "$EOF" >> "$GITHUB_OUTPUT"
+      - name: Tag & Create GH release
         if: ${{ steps.check_release.outputs.release=='' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           git remote set-url origin https://$GITHUB_TOKEN@github.com/${{ github.repository }}
           autopub prepare
-          poetry build
+          autopub build
           autopub commit
           autopub githubrelease
-          poetry publish -u __token__ -p $PYPI_PASSWORD

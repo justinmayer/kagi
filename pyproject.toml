@@ -20,12 +20,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -60,6 +54,7 @@ Werkzeug = "^2.0"
 
 [tool.autopub]
 project-name = "Kagi"
+build-system = "poetry"
 git-username = "botpub"
 git-email = "botpub@autopub.rocks"
 append-github-contributor = true
@@ -92,3 +87,6 @@ DJANGO_SETTINGS_MODULE = 'testproj.settings'
 [tool.flake8]
 ignore = ['E203', 'E501', 'W503']
 max-line-length = 88
+
+[tool.check-wheel-contents]
+ignore = ['W004']
