@@ -273,7 +273,6 @@ def test_verify_assertion_validates_the_user_webauthn_key(client):
         "kagi.views.api.webauthn.verify_assertion_response",
         return_value=fake_verified_authentication,
     ):
-
         response = client.post(
             reverse("kagi:verify-assertion"),
             {"credentials": json.dumps({"fake": "payload"})},
