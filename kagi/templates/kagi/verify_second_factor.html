@@ -11,11 +11,11 @@
 
 
 {% if forms.webauthn %}
-<form id="login-form">
+<form id="webauthn-auth-form">
     {% csrf_token %}
     <div id="webauthn-error" style="color: red"></div>
     <div id="webauthn-feature">
-      <button id="login" type="button">
+      <button id="webauthn-auth-begin" type="submit">
           {% trans "Tap here to log in with your WebAuthn key" %}
       </button>
     </div>

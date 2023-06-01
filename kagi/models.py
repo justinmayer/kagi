@@ -19,7 +19,6 @@ class WebAuthnKey(models.Model):
 
     key_name = models.CharField(max_length=64)
     public_key = models.TextField(unique=True)
-    ukey = models.TextField(unique=True)
     credential_id = models.TextField(unique=True)
     sign_count = models.IntegerField()
 
