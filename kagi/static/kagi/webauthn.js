@@ -11,7 +11,6 @@
  * limitations under the License.
  */
 
-
 const populateWebAuthnErrorList = (errors) => {
   const errorList = document.getElementById("webauthn-errors");
   if (errorList === null) {
@@ -43,14 +42,17 @@ const doWebAuthn = (formId, func) => {
   const webAuthnButton = webAuthnForm.querySelector("button[type=submit]");
   webAuthnButton.disabled = false;
 
-  webAuthnForm.addEventListener("submit", async() => {
+  webAuthnForm.addEventListener("submit", async () => {
     func(webAuthnButton.value);
     event.preventDefault();
   });
 };
 
 const webAuthnBtoA = (encoded) => {
-  return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return btoa(encoded)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 };
 
 const webAuthnBase64Normalize = (encoded) => {
@@ -58,20 +60,20 @@ const webAuthnBase64Normalize = (encoded) => {
 };
 
 const transformAssertionOptions = (assertionOptions) => {
-  let {challenge, allowCredentials} = assertionOptions;
+  let { challenge, allowCredentials } = assertionOptions;
 
-  challenge = Uint8Array.from(challenge, c => c.charCodeAt(0));
-  allowCredentials = allowCredentials.map(credentialDescriptor => {
-    let {id} = credentialDescriptor;
+  challenge = Uint8Array.from(challenge, (c) => c.charCodeAt(0));
+  allowCredentials = allowCredentials.map((credentialDescriptor) => {
+    let { id } = credentialDescriptor;
     id = webAuthnBase64Normalize(id);
-    id = Uint8Array.from(atob(id), c => c.charCodeAt(0));
-    return Object.assign({}, credentialDescriptor, {id});
+    id = Uint8Array.from(atob(id), (c) => c.charCodeAt(0));
+    return Object.assign({}, credentialDescriptor, { id });
   });
 
-  const transformedOptions = Object.assign(
-    {},
-    assertionOptions,
-    {challenge, allowCredentials});
+  const transformedOptions = Object.assign({}, assertionOptions, {
+    challenge,
+    allowCredentials,
+  });
 
   return transformedOptions;
 };
@@ -97,11 +99,16 @@ const transformAssertion = (assertion) => {
 };
 
 const transformCredentialOptions = (credentialOptions) => {
-  let {challenge, user} = credentialOptions;
-  user.id = Uint8Array.from(credentialOptions.user.id, c => c.charCodeAt(0));
-  challenge = Uint8Array.from(credentialOptions.challenge, c => c.charCodeAt(0));
+  let { challenge, user } = credentialOptions;
+  user.id = Uint8Array.from(credentialOptions.user.id, (c) => c.charCodeAt(0));
+  challenge = Uint8Array.from(credentialOptions.challenge, (c) =>
+    c.charCodeAt(0)
+  );
 
-  const transformedOptions = Object.assign({}, credentialOptions, {challenge, user});
+  const transformedOptions = Object.assign({}, credentialOptions, {
+    challenge,
+    user,
+  });
 
   return transformedOptions;
 };
@@ -130,14 +137,12 @@ const postCredential = async (keyName, credential, token) => {
   formData.set("credentials", JSON.stringify(credential));
   formData.set("csrf_token", token);
 
-  const resp = await fetch(
-    "/kagi/api/verify-credential-info/", {
-      method: "POST",
-      cache: "no-cache",
-      body: formData,
-      credentials: "same-origin",
-    }
-  );
+  const resp = await fetch(Kagi.verify_credential_info, {
+    method: "POST",
+    cache: "no-cache",
+    body: formData,
+    credentials: "same-origin",
+  });
 
   return await resp.json();
 };
@@ -147,14 +152,12 @@ const postAssertion = async (assertion, token) => {
   formData.set("credentials", JSON.stringify(assertion));
   formData.set("csrf_token", token);
 
-  const resp = await fetch(
-    "/kagi/api/verify-assertion/" + window.location.search, {
-      method: "POST",
-      cache: "no-cache",
-      body: formData,
-      credentials: "same-origin",
-    }
-  );
+  const resp = await fetch(Kagi.verify_assertion + window.location.search, {
+    method: "POST",
+    cache: "no-cache",
+    body: formData,
+    credentials: "same-origin",
+  });
 
   return await resp.json();
 };
@@ -182,89 +185,97 @@ const ProvisionWebAuthn = () => {
   doWebAuthn("webauthn-provision-form", async (csrfToken) => {
     const label = document.getElementById("id_key_name").value;
 
-    const resp = await fetch(
-      "/kagi/api/begin-activate/", {
-        cache: "no-cache",
-        credentials: "same-origin",
-      }
-    );
+    const resp = await fetch(Kagi.begin_activate, {
+      cache: "no-cache",
+      credentials: "same-origin",
+    });
 
     const credentialOptions = await resp.json();
     const transformedOptions = transformCredentialOptions(credentialOptions);
-    await navigator.credentials.create({
-      publicKey: transformedOptions,
-    }).then(async (credential) => {
-      const transformedCredential = transformCredential(credential);
+    await navigator.credentials
+      .create({
+        publicKey: transformedOptions,
+      })
+      .then(async (credential) => {
+        const transformedCredential = transformCredential(credential);
 
-      const status = await postCredential(label, transformedCredential, csrfToken);
-      if (status.fail) {
-        populateWebAuthnErrorList(status.fail.errors);
-        return;
-      }
+        const status = await postCredential(
+          label,
+          transformedCredential,
+          csrfToken
+        );
+        if (status.fail) {
+          populateWebAuthnErrorList(status.fail.errors);
+          return;
+        }
 
-      window.location.replace("/kagi/keys/");
-    }).catch((error) => {
+        window.location.replace(Kagi.keys_list);
+      })
+      .catch((error) => {
         console.log(error);
-      populateWebAuthnErrorList([error.message]);
-      return;
-    });
+        populateWebAuthnErrorList([error.message]);
+        return;
+      });
   });
 };
 
 const AuthenticateWebAuthn = () => {
   doWebAuthn("webauthn-auth-form", async (csrfToken) => {
-    const resp = await fetch(
-      "/kagi/api/begin-assertion/" + window.location.search, {
-        cache: "no-cache",
-        credentials: "same-origin",
-      }
-    );
+    const resp = await fetch(Kagi.begin_assertion + window.location.search, {
+      cache: "no-cache",
+      credentials: "same-origin",
+    });
 
     const assertionOptions = await resp.json();
     if (assertionOptions.fail) {
-      window.location.replace("/account/login");
+      window.location.replace("/account/");
       return;
     }
 
     const transformedOptions = transformAssertionOptions(assertionOptions);
-    await navigator.credentials.get({
-      publicKey: transformedOptions,
-    }).then(async (assertion) => {
-      const transformedAssertion = transformAssertion(assertion);
+    await navigator.credentials
+      .get({
+        publicKey: transformedOptions,
+      })
+      .then(async (assertion) => {
+        const transformedAssertion = transformAssertion(assertion);
 
-      const status = await postAssertion(transformedAssertion, csrfToken);
-      if (status.fail) {
-        populateWebAuthnErrorList(status.fail.errors);
+        const status = await postAssertion(transformedAssertion, csrfToken);
+        if (status.fail) {
+          populateWebAuthnErrorList(status.fail.errors);
+          return;
+        }
+
+        window.location.replace(status.redirect_to);
+      })
+      .catch((error) => {
+        populateWebAuthnErrorList([error.message]);
         return;
-      }
-
-      window.location.replace(status.redirect_to);
-    }).catch((error) => {
-      populateWebAuthnErrorList([error.message]);
-      return;
-    });
+      });
   });
 };
 
-
-document.addEventListener("DOMContentLoaded", e => {
-  const registerElement = document.querySelector('#webauthn-provision-form');
+document.addEventListener("DOMContentLoaded", (e) => {
+  const registerElement = document.querySelector("#webauthn-provision-form");
   if (registerElement) {
-      ProvisionWebAuthn();
+    ProvisionWebAuthn();
   }
 
-  const loginElement = document.querySelector('#webauthn-auth-form');
-    if (loginElement) {
-        AuthenticateWebAuthn();
+  const loginElement = document.querySelector("#webauthn-auth-form");
+  if (loginElement) {
+    AuthenticateWebAuthn();
   }
   // If browser doesn't support WebAuthn, hide related elements and show warning
-  if (typeof(PublicKeyCredential) == "undefined") {
+  if (typeof PublicKeyCredential == "undefined") {
     var webAuthnFeature = document.getElementById("webauthn-feature");
     if (webAuthnFeature) {
       webAuthnFeature.style.display = "none";
     }
-    var webAuthnUndefinedError = document.getElementById("webauthn-undefined-error");
+    var webAuthnUndefinedError = document.getElementById(
+      "webauthn-undefined-error"
+    );
     if (webAuthnUndefinedError) {
-      webAuthnUndefinedError.style.display = "block"; }
+      webAuthnUndefinedError.style.display = "block";
     }
+  }
 });
