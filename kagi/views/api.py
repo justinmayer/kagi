@@ -189,7 +189,7 @@ def webauthn_verify_assertion(request):
 
     # Update counter.
     key.sign_count = sign_count
-    key.last_used = now()
+    key.last_used_at = now()
     key.save()
 
     try:
