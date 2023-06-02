@@ -110,9 +110,13 @@ jobs:
     needs: [test, lint]
     runs-on: ubuntu-latest
     if: ${{ github.ref=='refs/heads/main' && github.event_name!='pull_request' }}
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -129,10 +133,7 @@ jobs:
           echo "$EOF" >> "$GITHUB_OUTPUT"
       - name: Tag & Create GH release
         if: ${{ steps.check_release.outputs.release=='' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git remote set-url origin https://$GITHUB_TOKEN@github.com/${{ github.repository }}
           autopub prepare
           autopub build
           autopub commit
