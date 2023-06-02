@@ -116,7 +116,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.10"
       - name: Check release
         id: check_release
         run: |
@@ -136,4 +136,3 @@ jobs:
           autopub prepare
           autopub build
           autopub commit
-          autopub githubrelease
