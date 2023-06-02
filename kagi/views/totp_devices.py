@@ -7,7 +7,7 @@ from urllib.parse import quote
 from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
@@ -17,6 +17,7 @@ from django.views.generic import FormView, ListView
 import qrcode
 from qrcode.image.svg import SvgPathFillImage
 
+from ..constants import SESSION_TOTP_SECRET_KEY
 from ..forms import TOTPForm
 from ..models import TOTPDevice
 from .mixin import OriginMixin
@@ -27,11 +28,33 @@ class AddTOTPDeviceView(OriginMixin, FormView):
     template_name = "kagi/totp_device.html"
     success_url = reverse_lazy("kagi:totp-devices")
 
-    def gen_key(self):
-        return os.urandom(20)
+    def get(self, request, *args: str, **kwargs):
+        # When opening the view with a GET request, we treat it as a "add new
+        # device" request. There, we create a new TOTP secret and put it into
+        # the current user's session. Upon POST, the secret is read from the
+        # session again.
+        # Once a new TOTP device was successfully added, we'll drop the secret
+        # from the session.
+        # This approach allows to re-enter the token if mistyped, while keeping
+        # the same TOTP device setup on the TOTP generator.
+        self.secret = self.gen_secret()
+        self.request.session[SESSION_TOTP_SECRET_KEY] = self.secret
+        return super().get(request, *args, **kwargs)
 
-    def get_otpauth_url(self, key):
-        secret = b32encode(key)
+    def post(self, request, *args: str, **kwargs):
+        # Try to get the TOTP secret from the session. If the secret doesn't
+        # exist, redirect to the view again, to configure a new TOTP secret.
+        self.secret = self.request.session.get(SESSION_TOTP_SECRET_KEY, None)
+        if not self.secret:
+            messages.error(request, _("Missing TOTP secret. Please try again."))
+            return redirect(request.path)
+
+        return super().post(request, *args, **kwargs)
+
+    def gen_secret(self):
+        return b32encode(os.urandom(20)).decode()
+
+    def get_otpauth_url(self, secret):
         issuer = get_current_site(self.request).name
 
         params = OrderedDict([("secret", secret), ("digits", 6), ("issuer", issuer)])
@@ -48,17 +71,10 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         img.save(buf)
         return buf.getvalue().decode("utf-8")
 
-    @cached_property
-    def key(self):
-        try:
-            return b32decode(self.request.POST["base32_key"])
-        except KeyError:
-            return self.gen_key()
-
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
-        kwargs["base32_key"] = b32encode(self.key).decode()
-        kwargs["otpauth"] = self.get_otpauth_url(self.key)
+        kwargs["base32_key"] = self.secret
+        kwargs["otpauth"] = self.get_otpauth_url(self.secret)
         kwargs["qr_svg"] = self.get_qrcode(kwargs["otpauth"])
         return kwargs
 
@@ -70,8 +86,9 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        device = TOTPDevice(user=self.request.user, key=self.key)
+        device = TOTPDevice(user=self.request.user, key=b32decode(self.secret))
         if device.validate_token(form.cleaned_data["token"]):
+            del self.request.session[SESSION_TOTP_SECRET_KEY]
             device.save()
             messages.success(self.request, _("Device added."))
             return super().form_valid(form)
