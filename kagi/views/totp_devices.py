@@ -37,13 +37,13 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         # This approach allows to re-enter the token if mistyped, while keeping
         # the same TOTP device setup on the TOTP generator.
         self.secret = self.gen_secret()
-        self.request.session[SESSION_TOTP_SECRET_KEY] = self.secret
+        request.session[SESSION_TOTP_SECRET_KEY] = self.secret
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args: str, **kwargs):
         # Try to get the TOTP secret from the session. If the secret doesn't
         # exist, redirect to the view again, to configure a new TOTP secret.
-        self.secret = self.request.session.get(SESSION_TOTP_SECRET_KEY, None)
+        self.secret = request.session.get(SESSION_TOTP_SECRET_KEY, None)
         if not self.secret:
             messages.error(request, _("Missing TOTP secret. Please try again."))
             return redirect(request.path)
