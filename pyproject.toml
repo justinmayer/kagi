@@ -2,7 +2,10 @@
 name = "kagi"
 version = "0.3.0"
 description = "Django app for WebAuthn and TOTP-based multi-factor authentication"
-authors = ["Justin Mayer <entroP@gmail.com>", "Rémy Hubscher <hubscher.remy@gmail.com>"]
+authors = [
+    "Justin Mayer <entroP@gmail.com>",
+    "Rémy Hubscher <hubscher.remy@gmail.com>",
+]
 license = "BSD-2-Clause"
 readme = "README.rst"
 keywords = ["Django", "WebAuthn", "authentication", "MFA", "2FA"]
@@ -48,7 +51,7 @@ furo = "2022.04.07"
 invoke = "^2.0"
 isort = "^5.11"
 livereload = "^2.6"
-psutil = {version = "^5.7", optional = true}
+psutil = { version = "^5.7", optional = true }
 pyOpenSSL = "^22.0"
 pytest = "^7.1"
 pytest-cov = "^3.0"
@@ -63,6 +66,16 @@ project-name = "Kagi"
 git-username = "botpub"
 git-email = "botpub@autopub.rocks"
 append-github-contributor = true
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+omit = ["*/site-packages/*"]
+source = ["./kagi"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
 
 [tool.isort]
 profile = "black"
@@ -85,9 +98,13 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-filterwarnings = ['ignore::DeprecationWarning:invoke.loader', 'ignore::DeprecationWarning:invoke.tasks']
+filterwarnings = [
+    'ignore::DeprecationWarning:invoke.loader',
+    'ignore::DeprecationWarning:invoke.tasks',
+]
 pythonpath = 'testproj'
 DJANGO_SETTINGS_MODULE = 'testproj.settings'
+addopts = "-vvs --cov --doctest-modules"
 
 [tool.flake8]
 ignore = ['E203', 'E501', 'W503']
