@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import FormView, ListView
 
 import qrcode
-from qrcode.image.svg import SvgPathImage
+from qrcode.image.svg import SvgPathFillImage
 
 from ..forms import TOTPForm
 from ..models import TOTPDevice
@@ -43,7 +43,7 @@ class AddTOTPDeviceView(OriginMixin, FormView):
         )
 
     def get_qrcode(self, data):
-        img = qrcode.make(data, image_factory=SvgPathImage)
+        img = qrcode.make(data, image_factory=SvgPathFillImage)
         buf = BytesIO()
         img.save(buf)
         return buf.getvalue().decode("utf-8")
