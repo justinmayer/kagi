@@ -29,7 +29,7 @@ def add_new_totp_device(client, *, url=None, now=None):
     base32_key = response.context_data["base32_key"]
     key = base64.b32decode(base32_key.encode("utf-8"))
     token = totp(key, now)
-    response = client.post(url, {"base32_key": base32_key, "token": token})
+    response = client.post(url, {"token": token})
     response.token = token
     return response
 
@@ -61,19 +61,45 @@ def test_add_a_new_totp_device_context_data_contains_the_base32_key_and_otpauth_
     )
 
 
-def test_add_a_new_totp_device_validates_the_otpauth_code_and_change_key_in_case_of_mismatch(
+def test_add_a_new_totp_device_validates_the_otpauth_code_but_keeps_secret_in_case_of_mismatch(
     admin_client,
 ):
     response = admin_client.get(reverse("kagi:add-totp"))
     assert response.status_code == 200
     base32_key = response.context_data["base32_key"]
-    response = admin_client.post(
-        reverse("kagi:add-totp"), {"base32_key": base32_key, "token": "123456"}
-    )
+
+    # Submit the form once, but with an invalid token. The secret should remain
+    # the same.
+    response = admin_client.post(reverse("kagi:add-totp"), {"token": "123456"})
     assert response.status_code == 200
     assert base32_key == response.context_data["base32_key"]
     form = response.context_data["form"]
     assert form.errors == {"token": ["That token is invalid."]}
+
+    # Submit the form a second time with the correct token. This should work.
+    key = base64.b32decode(base32_key.encode("utf-8"))
+    token = totp(key, timezone.now())
+    response = admin_client.post(reverse("kagi:add-totp"), {"token": token})
+    assert response.status_code == 302
+    assert response.url == reverse("kagi:totp-devices")
+    # Ensure the secret is removed from the user session after adding a device.
+    assert "kagi_totp_secret" not in admin_client.session
+
+    response = admin_client.get(reverse("kagi:totp-devices"))
+    assert len(response.context_data["totpdevice_list"]) == 1
+
+
+def test_add_a_new_totp_device_fails_when_secret_is_missing_in_session(admin_client):
+    response = admin_client.get(reverse("kagi:add-totp"))
+    assert response.status_code == 200
+
+    session = admin_client.session
+    del session["kagi_totp_secret"]
+    session.save()
+
+    response = admin_client.post(reverse("kagi:add-totp"), {"token": "123456"})
+    assert response.status_code == 302
+    assert response.url == reverse("kagi:add-totp")
 
 
 def test_add_a_new_totp_device_validates_the_otpauth_code_and_create_the_device_if_valid(
@@ -82,6 +108,8 @@ def test_add_a_new_totp_device_validates_the_otpauth_code_and_create_the_device_
     response = add_new_totp_device(admin_client)
     assert response.status_code == 302
     assert response.url == reverse("kagi:totp-devices")
+    # Ensure the secret is removed from the user session after adding a device.
+    assert "kagi_totp_secret" not in admin_client.session
 
     response = admin_client.get(reverse("kagi:totp-devices"))
     assert len(response.context_data["totpdevice_list"]) == 1
