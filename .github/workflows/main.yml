@@ -131,13 +131,11 @@ jobs:
         if: ${{ steps.check_release.outputs.autopub_release=='true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-          TWINE_USERNAME: __token__
         run: |
           autopub prepare
           autopub commit
           autopub build
           autopub githubrelease
       - name: Upload package to PyPI
-        if: ${{ steps.check_release.outputs.release=='' }}
+        if: ${{ steps.check_release.outputs.autopub_release=='true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
