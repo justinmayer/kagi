@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kagi"
-version = "0.3.0"
+version = "0.4.0"
 description = "Django app for WebAuthn and TOTP-based multi-factor authentication"
 authors = ["Justin Mayer <entroP@gmail.com>", "Rémy Hubscher <hubscher.remy@gmail.com>"]
 license = "BSD-2-Clause"
