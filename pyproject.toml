@@ -56,7 +56,7 @@ Werkzeug = "^2.0"
 [tool.autopub]
 project-name = "Kagi"
 git-username = "botpub"
-git-email = "botpub@autopub.rocks"
+git-email = "52496925+botpub@users.noreply.github.com"
 append-github-contributor = true
 
 [tool.isort]
