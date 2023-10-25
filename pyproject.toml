@@ -44,7 +44,7 @@ invoke = "^2.0"
 isort = "^5.11"
 livereload = "^2.6"
 psutil = {version = "^5.7", optional = true}
-pyOpenSSL = "^22.0"
+pyOpenSSL = "^23.0"
 pytest = "^7.1"
 pytest-cov = "^3.0"
 pytest-django = "^4.0"
