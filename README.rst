@@ -31,6 +31,8 @@ Kagi is a relatively young project and has not yet been fully battle-tested.
 Its use in a high-impact environment should be accompanied by a thorough
 understanding of how it works before relying on it.
 
+`Full documentation is hosted on Read the Docs`_. 
+
 Installation
 ------------
 
@@ -109,3 +111,4 @@ which served as useful initial scaffolding for this project.
 
 
 .. _Poetry: https://python-poetry.org/docs/#installation
+.. _Full documentation is hosted on Read the Docs: https://kagi.readthedocs.io
