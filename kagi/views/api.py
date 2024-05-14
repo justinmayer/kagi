@@ -127,7 +127,7 @@ def webauthn_verify_assertion(request):
         credential_id=bytes_to_base64url(webauthn_assertion_response.credential_id)
     )
     key.sign_count = webauthn_assertion_response.new_sign_count
-    key.last_used = now()
+    key.last_used_at = now()
     key.save()
 
     try:
