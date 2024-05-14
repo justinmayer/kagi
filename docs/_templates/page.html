@@ -13,6 +13,12 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">
+  {%- trans -%}
+  Skip to content
+  {%- endtrans -%}
+</a>
+
 {% if theme_announcement -%}
 <div class="announcement">
   <aside class="announcement-content">
@@ -68,19 +74,11 @@
           <span>{% trans %}Back to top{% endtrans %}</span>
         </a>
         <div class="content-icon-container">
-          {#- Edit this page, on GitHub -#}
-          {%- if READTHEDOCS and conf_py_path and page_source_suffix and github_user != "None" and github_repo != "None" and github_version %}
-          <div class="edit-this-page">
-            <a class="muted-link" href="https://github.com/{{ github_user }}/{{ github_repo }}/edit/{{ github_version }}{{ conf_py_path }}{{ pagename }}{{ page_source_suffix }}" title="{{ _("Edit this page") }}">
-              <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
-                <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
-              </svg>
-              <span class="visually-hidden">{{ _("Edit this page") }}</span>
-            </a>
-          </div>
-          {% endif %}
+          {% if theme_top_of_page_button == "edit" -%}
+          {%- include "components/edit-this-page.html" with context -%}
+          {%- elif theme_top_of_page_button != None -%}
+          {{ warning("Got an unsupported value for 'top_of_page_button'") }}
+          {%- endif -%}
           {#- Theme toggle -#}
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
@@ -95,7 +93,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           {% block content %}{{ body }}{% endblock %}
         </article>
       </div>
@@ -110,12 +108,12 @@
                 </div>
                 <div class="title">{{ next.title }}</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           {%- endif %}
           {% if prev -%}
             <a class="prev-page" href="{{ prev.link }}">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>{{ _("Previous") }}</span>
@@ -153,6 +151,7 @@
             {%- endif %}
           </div>
           <div class="right-details">
+            {% if theme_footer_icons or READTHEDOCS -%}
             <div class="icons">
               {% if theme_footer_icons -%}
               {% for icon_dict in theme_footer_icons -%}
@@ -179,6 +178,7 @@
               {%- endif -%}
               {%- endif %}
             </div>
+            {%- endif %}
           </div>
         </div>
         {% endblock footer %}
@@ -190,7 +190,7 @@
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            {{ _("Contents") }}
+            {{ _("On this page") }}
           </span>
         </div>
         <div class="toc-tree-container">
