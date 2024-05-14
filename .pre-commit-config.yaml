@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for info on hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -19,43 +19,43 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 24.4.2
     hooks:
       - id: black
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+    rev: 7.0.0
     hooks:
       - id: flake8
         additional_dependencies: [Flake8-pyproject]
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.5
+    rev: 5.13.2
     hooks:
       - id: isort
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.7.8
     hooks:
       - id: bandit
         args: ["-lll", "-vr", "kagi", "testproj"]
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-    rev: v1.3.1
+    rev: v1.3.3
     hooks:
       - id: python-safety-dependencies-check
-        # 51457: https://github.com/pytest-dev/py/issues/287
-        args: ["--disable-telemetry", "--ignore=51457"]
+        # 65213: https://data.safetycli.com/vulnerabilities/CVE-2023-6129/65213/
+        args: ["--disable-optional-telemetry", "--ignore=65213"]
         files: pyproject.toml
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
+    rev: v3.15.2
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
 
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 0.16.0
+    rev: 1.2.1
     hooks:
       - id: unimport
         args: [--remove, --include-star-import]
